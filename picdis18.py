@@ -29,22 +29,23 @@ import getopt, os, sys, string
 
 debug = 0
 tabsize = 4
-listing = 0		# =1 => only 1 asm line per each addr. ( -empty +nil )
-hexstyle = 0		# 0NNNh
+listing = 0	  # =1 => only 1 asm line per each addr. ( -empty +nil )
+hexstyle = 0  # 0NNNh
+dbstyle = 1   # 0 = hex, 1 = dec
 
-code={}  # key=(even addresses),  value=Instruction(s)
-eeprom={};
-configuration={}
+code = {}  # key=(even addresses),  value=Instruction(s)
+eeprom = {}
+configuration = {}
 
 class Instruction:
 	def __init__(self):
-		self.bin=0			# taken from hex
-		self.dummy=0		# strange jumps, ORGs
-		self.calls=[]		# list of callers/(jumpers)
-		self.asm=''
-		self.label='\t'
-		self.prefixline=''
-		self.comment=';'
+		self.bin = 0		# taken from hex
+		self.dummy = 0		# strange jumps, ORGs
+		self.calls = []		# list of callers/(jumpers)
+		self.asm = ''
+		self.label = '\t'
+		self.prefixline = ''
+		self.comment = ';'
 
 ###################################################################
 def hexc(nr):			#custom hex()
@@ -60,8 +61,7 @@ def hexc(nr):			#custom hex()
 ###################################################################
 def makelabel(nr):
 	s = '%X' % int(nr)
-	return 'p'+s.rjust(6).replace(' ','_')
-
+	return 'p' + s.rjust(6).replace(' ', '_')
 
 ###################################################################
 # Reads an Intel HEX file into the `code` dictionary
@@ -91,24 +91,24 @@ def read_object_code (objectfile):
 			dd = x[9:-2]		# isolate the data
 			ad /= 2				# convert byte to word address
 			while dd:
-				d = int (dd[0:2],16), int (dd[2:4],16)	# convert 2 bytes
-				teco[ad*2] = Instruction()				# add a new key=address
-				teco[ad*2].bin = (d[1] << 8) + d[0]		# write a word in code
-				cks += d[0] + d[1]						# update checksum
-				ad += 1									# bump the code address
-				dd = dd[4:]								# drop old data
-			if (int (x[-2:], 16) + cks) & 0xFF != 0:	# verify the checksum
-				raise ValueError( (hexc (-cks), hexc (int(x[-2:],16))))
-			if (ad < 0x300000/2):
+				d = int (dd[0:2], 16), int (dd[2:4], 16) # convert 2 bytes
+				teco[ad * 2] = Instruction()			 # add a new key = address
+				teco[ad * 2].bin = (d[1] << 8) + d[0]	 # write a word in code
+				cks += d[0] + d[1]						 # update checksum
+				ad += 1									 # bump the code address
+				dd = dd[4:]								 # drop old data
+			if (int (x[-2:], 16) + cks) & 0xFF != 0:	 # verify the checksum
+				raise ValueError((hexc (-cks), hexc (int(x[-2:], 16))))
+			if (ad < (0x300000 / 2)):
 				code.update(teco)
-			elif (ad < 0xF00000/2):
+			elif (ad < (0xF00000/2)):
 				configuration.update(teco)
 			else:
 				eeprom.update(teco)
 		else:
 			print("Ignoring line: ", x)					# ignore anything else
-# end read_object_code
 
+###################################################################
 def read_registry_names():
 	# Provide symbolic names for all special file registers
 	f = open ('regnames18.txt', "r");
@@ -119,7 +119,7 @@ def read_registry_names():
 		if x == "":
 			continue
 		a, b = x.split (' ')
-		regn[int(a,16)] = b
+		regn[int(a, 16)] = b
 	f.close()
 	return regn
 
@@ -163,8 +163,8 @@ def make_operand_table ():
 		a = a.replace (' ', '\t')	# make the opcode/operands separator a tab
 		oplist.append ((a, cv, cm))	# append a (asm_template, value, mask) tuple
 	f.close()
+	#print (oplist);
 	return tuple (oplist)			# Eg: ('addwf	F, D, A', 0x4800, 0xfc00)
-
 
 ###################################################################
 # Return the assembly-language template string
@@ -172,14 +172,17 @@ def make_operand_table ():
 #
 def matching_opcode (w):
 	global operand_table
+	#print (operand_table)
 	for x in operand_table:
 		if (w & x[2]) == x[1]:		# code[].bin & code_mask == code_value
 			return x[0]
 	return "X"						# unidentifiable binary -- punt
 
+###################################################################
 def lookup_adr(addr):
 	global code
 	if addr in code:
+		#rint (code[addr])
 		return code[addr]
 	else:							# exceptional case: a jump to a location not defined in hexfile
 		x = Instruction()			#					or a missing second word in a dword instr
@@ -187,7 +190,6 @@ def lookup_adr(addr):
 		x.bin = 0xffff
 		code[addr] = x
 		return x
-
 
 ###################################################################
 # F		.... .... ffff ffff
@@ -211,32 +213,32 @@ def assembly_line (addr):
 	if debug: print(hexc(w), t)
 	s = []						# init the return value
 	for c in t:					# for each character in the template
-		if   c == 'F':			# insert a register-file address
+		if (c == 'F'):			# insert a register-file address
 			q = w & 0xFF
-			if af==0 and q>=0x80:
+			if (af == 0) and (q >= 0x80):
 				s.append (reg_names.get (q | 0xF00, hexc(q)))
 			else:
 				s.append (hexc(q))
-		elif c == 'D':			# insert a ",w" modifier=0, if appropriate
+		elif (c == 'D'):			# insert a ",w" modifier = 0, if appropriate
 			if (w & 0x200) == 0:
 				s.append ('W')
 			else:
 			    s.append ('f')
-		elif c == 'B':			# insert a bit-number
-			s.append ( '%d' % (((w >> 9) & 0x7),) )
-		elif c == 'K':			# insert an 8-bit constant
+		elif (c == 'B'):			# insert a bit-number
+			s.append ('%d' % (((w >> 9) & 0x7)))
+		elif (c == 'K'):			# insert an 8-bit constant
 			s.append (hexc(w & 0xFF))
-		elif c == 'C':			# movlb
+		elif (c == 'C'):			# movlb
 			s.append (hexc(w & 0xF))
-		elif c == 'N':			# branch relative +- 127
-			q = w & 0xFF
-			if q < 0x80:
-				dest = addr + 2 + q*2
+		elif (c == 'N'):			# branch relative +- 127
+			q = (w & 0xFF)
+			if (q < 0x80):
+				dest = addr + 2 + (q * 2)
 			else:
-				dest = addr + 2 - (0x100 - q)*2
+				dest = addr + 2 - (0x100 - q) * 2
 			s.append (makelabel(dest))
 			lookup_adr(dest).calls.append(addr)
-		elif c == 'M':			# insert a rcall/bra relative +- 1023
+		elif (c == 'M'):			# insert a rcall/bra relative +- 1023
 			q = w & 0x7FF
 			if q < 0x400:
 				dest = addr + 2 + q*2
@@ -244,46 +246,46 @@ def assembly_line (addr):
 				dest = addr + 2 - (0x800 - q)*2
 			s.append (makelabel(dest))
 			lookup_adr(dest).calls.append(addr)
-		elif c == 'A':			# access bank = 0 implicit
+		elif (c == 'A'):			# access bank = 0 implicit
 			if (w & 0x100) != 0:
 				s.append ('BANKED')
-			elif s[-3:] == [',','f',',']:# do not show:	,f,0
+			elif s[-3:] == [',', 'f', ',']:# do not show:	,f,0
 				s = s[:-3]
 			elif s[-1] == ',':	# do not show:	,0
 				del s[-1]
-		elif c == 'S':			# =1 restore reg. on ret: retfie/return (implicit 0)
+		elif (c == 'S'):			# =1 restore reg. on ret: retfie/return (implicit 0)
 			if (w & 0x1) == 1:
 				s.append ('FAST')
 			elif s[-1] == ',':
 				del s[-1]
-		elif c == 'Y':			# dword	movff
-			w2 = lookup_adr(addr+2).bin
-			s.append (reg_names.get (w  & 0xFFF, hexc(w  & 0xFFF)) +','+
-					  reg_names.get (w2 & 0xFFF, hexc(w2 & 0xFFF)) )
-		elif c == 'W':			# dword	call/goto
-			w2 = lookup_adr(addr+2).bin
-			dest = ((w & 0xFF) | ((w2 & 0xFFF) << 8))*2
+		elif (c == 'Y'):			# dword	movff
+			w2 = lookup_adr(addr + 2).bin
+			s.append (reg_names.get (w  & 0xFFF, hexc(w  & 0xFFF)) + ',' +
+					  reg_names.get (w2 & 0xFFF, hexc(w2 & 0xFFF)))
+		elif (c == 'W'):			# dword	call/goto
+			w2 = lookup_adr(addr + 2).bin
+			dest = ((w & 0xFF) | ((w2 & 0xFFF) << 8)) * 2
 			lookup_adr(dest).calls.append(addr)
 			s.append (makelabel(dest))
 			if ((w & 0x300) ^ 0x100) == 0:	# only if its a 'call' and 's' is set
 				s.append (',FAST')
-		elif c == 'Z':			# dword	lfsr
-			w2 = lookup_adr(addr+2).bin
-			s.append (str((w & 0x30) >> 4) +','+ hexc(((w & 0xF) << 8) | (w2 & 0xFF)) )
-		elif c == 'X':			# insert the hex version of the whole word
+		elif (c == 'Z'):			# dword	lfsr
+			w2 = lookup_adr(addr + 2).bin
+			s.append (str((w & 0x30) >> 4) + ',' + hexc(((w & 0xF) << 8) | (w2 & 0xFF)))
+		elif (c == 'X'):			# insert the hex version of the whole word
 			s.append ('DE ' + hexc(w) + '\t\t;WARNING: unknown instruction!')
 		else:					# insert this source-code character
-			if (c=='\t')and(len(s)<tabsize):
+			if (c == '\t') and (len(s) < tabsize):
 				s.append('\t')	# for short instructions (eg: bfc/bz/...) add another tab
 			s.append (c);
 	code[addr].asm = ''.join (s)
-# end assembly_string
 
+###############################################################
 def eep_cfg_txt():					# generate text for the eeprom and configuration words
 	txt = ''
 	for x in configuration:
 		if listing:
-			txt += '%06X %04X\n' % (x, configuration[x].bin)
+			txt += '%06X %04X\n' % (int(x), int(configuration[x].bin))
 		else:
 			txt += '\t\t__CONFIG %s, %s\n' % (hexc(x), hexc(configuration[x].bin))
 	if eeprom:
@@ -306,11 +308,11 @@ if __name__ == '__main__':
 		input_file = args[0]
 		output_file = input_file[:-4] + '_.asm'
 		for o, v in opts:
-			if o == '-o':	# user-supplied output path
+			if (o == '-o'):	# user-supplied output path
 				output_file = v
-			elif o == '-l':
+			elif (o == '-l'):
 				listing = 1
-			elif o == '-h':	#ToDo:repair
+			elif (o == '-h'):	#ToDo:repair
 				hexstyle = 1	# 0xNNN
 	except:
 		print(__doc__)
@@ -326,26 +328,30 @@ if __name__ == '__main__':
 	print('Disassemble...')
 	tempk = list(code.keys())
 	tempk.sort()
+
+
 	for wadr in tempk:
 		assembly_line (wadr)
 
 	print('Arranging...')						# (old tempk)!
 	for wadr in tempk:
 		cod = code[wadr]
-		if len(cod.calls)>0:					# put labels
+		if (len(cod.calls) > 0):				# put labels
 			cod.label = makelabel(wadr)
-			cod.comment += ' entry from: ' + ','.join(map(hexc,cod.calls))
+			cod.comment += ' entry from: ' + ','.join(map(hexc, cod.calls))
 			if (not listing) and (len(cod.calls) > 1):
 				cod.prefixline += '\n'
-		if len(cod.comment) < 3:				#remove empty comments
+		if (len(cod.comment) < 3):				#remove empty comments
 			cod.comment = ''
 		else:
 			s = cod.asm.expandtabs(tabsize)		#align tabs
-			cod.comment = ('\t'*int((32+3-len(s))/tabsize)) + cod.comment
-		if (wadr-2) not in code:			# must put an ORG if not contiguous
+			cod.comment = ('\t' * int((32 + 3 - len(s)) / tabsize)) + cod.comment
+		if ((wadr - 2) not in code):			# must put an ORG if not contiguous
 			cod.prefixline += '\t\tORG %s \n' % (hexc(wadr))
+
 	for wadr in tempk:		#could not mix with ORG
-		if (not listing) and (code[wadr].asm.strip() == ';nil'):
+		if ((not listing) and (code[wadr].asm.strip() == ';nil')):
+			#print (code[wadr].bin)
 			del code[wadr]						# remove ;nil-s
 
 	print('Writing...', os.path.abspath (output_file))
@@ -357,11 +363,11 @@ if __name__ == '__main__':
 	otf.write(eep_cfg_txt())
 	for a in tempk:
 		if listing:
-			otf.write('%05X %04X\t' % (a, code[a].bin))
+			otf.write('%05X %04X\t' % (int(a), int(code[a].bin)))
 		else:
 			otf.write(code[a].prefixline)
 		otf.write ('%s\t%s%s\n' % (code[a].label, code[a].asm, code[a].comment))
-		#otf.write ('%04X: %04X%s\t%s\t\t\t%s\n' % (a, code[a].bin, code[a].label, code[a].asm, code[a].comment))
+
 	otf.write('\tEND')
 	otf.close()
 	print('Done.')
