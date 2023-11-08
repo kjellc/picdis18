@@ -11,7 +11,7 @@ file_.asm  default output file, containing the assembly instructions, SFR names
 -l	lists addresses and binary code of instructions   
 Can be loaded into MPLAB and reassembled immediatedly without any problems!   
 although the processor type should be changed (default 18F252)   
-"""   
+
 
 #The starting point for this program was:  
 #DISPIC16.PY  
