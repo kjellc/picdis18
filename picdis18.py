@@ -13,7 +13,7 @@ Can be loaded into MPLAB and reassembled immediatedly without any problems!
 although the processor type should be changed (default 18F252)
 """
 # The assigned labels contain the hex address of the instruction
-# ToDo: + clean code + bitnames 
+# ToDo: + clean code + bitnames
 #------------------History---------------------------
 #
 #
@@ -31,8 +31,11 @@ debug = 0
 tabsize = 4
 listing = 0		# =1 => only 1 asm line per each addr. ( -empty +nil )
 hexstyle = 0		# 0NNNh
+
 code={}  # key=(even addresses),  value=Instruction(s)
-eeprom={}; configuration={}
+eeprom={};
+configuration={}
+
 class Instruction:
 	def __init__(self):
 		self.bin=0			# taken from hex
@@ -46,23 +49,23 @@ class Instruction:
 ###################################################################
 def hexc(nr):			#custom hex()
 	if hexstyle:
-		return '0x%X' % (nr,)		# C syle
+		return '0x%X' % int(nr)		# C syle
 	else:
-		if nr<10: return str(nr)	# ASM style
-		t = '%Xh' % (nr,)
-		if t[0] in string.letters:
+		if nr<10: return str(int(nr))	# ASM style
+		t = '%Xh' % int(nr)
+		if t[0] in string.ascii_letters:
 			t = '0' + t
 		return t
 
 ###################################################################
 def makelabel(nr):
-	s = ('%X' % (nr,) )
+	s = '%X' % int(nr)
 	return 'p'+s.rjust(5).replace(' ','_')
-	
+
 
 ###################################################################
 # Reads an Intel HEX file into the `code` dictionary
-# the keys are addresses and code[].bin has the object code 
+# the keys are addresses and code[].bin has the object code
 #
 def read_object_code (objectfile):
 	global code
@@ -74,14 +77,14 @@ def read_object_code (objectfile):
 			nb = int (x[1:3], 16)			# number of bytes this record
 			ad = int (exta + x[3:7], 16)	# starting word address this record + extended linear
 			ty = int (x[7:9], 16)			# record type
-			if debug:	print string.rjust(hexc(ad),8), ty, x
+			if debug:	print(string.rjust(hexc(ad),8), ty, x)
 			if   ty == 0:	pass
 			elif ty == 1:	break			# end of record
 			elif ty == 4:					# extended linear, only :02000004aaaa  supported
 				exta = x[9:13];
-				continue	
+				continue
 			else:
-				print "\t\tNot a data record"
+				print("\t\tNot a data record")
 				continue 		# not a data record - ignore it
 			teco = {}			# temporary code
 			cks = nb + (ad & 0xFF) + ((ad >> 8) & 0xFF) + ty	# init checksum
@@ -103,7 +106,7 @@ def read_object_code (objectfile):
 			else:
 				eeprom.update(teco)
 		else:
-			print "Ignoring line: ", x					# ignore anything else
+			print("Ignoring line: ", x)					# ignore anything else
 # end read_object_code
 
 def read_registry_names():
@@ -176,15 +179,15 @@ def matching_opcode (w):
 
 def lookup_adr(addr):
 	global code
-	if code.has_key(addr):
-		return code[addr] 
-	else:							# exceptional case: a jump to a location not defined in hexfile 
+	if addr in code:
+		return code[addr]
+	else:							# exceptional case: a jump to a location not defined in hexfile
 		x = Instruction()			#					or a missing second word in a dword instr
 		x.dummy = 1
 		x.bin = 0xffff
 		code[addr] = x
 		return x
-	
+
 
 ###################################################################
 # F		.... .... ffff ffff
@@ -205,7 +208,7 @@ def assembly_line (addr):
 	w = cod.bin
 	t = matching_opcode (w)		# get the right assembly template
 	af = w & 0x100				# `guess` `A` flag
-	if debug: print hexc(w), t
+	if debug: print(hexc(w), t)
 	s = []						# init the return value
 	for c in t:					# for each character in the template
 		if   c == 'F':			# insert a register-file address
@@ -233,7 +236,7 @@ def assembly_line (addr):
 				dest = addr + 2 - (0x100 - q)*2
 			s.append (makelabel(dest))
 			lookup_adr(dest).calls.append(addr)
-		elif c == 'M':			# insert a rcall/bra relative +- 1023 
+		elif c == 'M':			# insert a rcall/bra relative +- 1023
 			q = w & 0x7FF
 			if q < 0x400:
 				dest = addr + 2 + q*2
@@ -310,23 +313,23 @@ if __name__ == '__main__':
 			elif o == '-h':	#ToDo:repair
 				hexstyle = 1	# 0xNNN
 	except:
-		print __doc__
+		print(__doc__)
 		sys.exit(2)
-	
-	print 'Building tables...'
+
+	print('Building tables...')
 	operand_table = make_operand_table ()
 	reg_names = read_registry_names()
 
-	print 'Reading object file...', os.path.abspath (input_file)
+	print('Reading object file...', os.path.abspath (input_file))
 	read_object_code (open (input_file, "r"))
 
-	print 'Disassemble...'
-	tempk = code.keys()
+	print('Disassemble...')
+	tempk = list(code.keys())
 	tempk.sort()
 	for wadr in tempk:
 		assembly_line (wadr)
 
-	print 'Arranging...'						# (old tempk)!
+	print('Arranging...')						# (old tempk)!
 	for wadr in tempk:
 		cod = code[wadr]
 		if len(cod.calls)>0:					# put labels
@@ -338,16 +341,16 @@ if __name__ == '__main__':
 			cod.comment = ''
 		else:
 			s = cod.asm.expandtabs(tabsize)		#align tabs
-			cod.comment = '\t'*((32+3-len(s))/tabsize) + cod.comment
-		if not code.has_key(wadr-2):			# must put an ORG if not contiguous
-			cod.prefixline += '\t\tORG %s\n' % (hexc(wadr),)
+			cod.comment = ('\t'*int((32+3-len(s))/tabsize)) + cod.comment
+		if (wadr-2) not in code:			# must put an ORG if not contiguous
+			cod.prefixline += '\t\tORG %s \n' % (hexc(wadr))
 	for wadr in tempk:		#could not mix with ORG
 		if (not listing) and (code[wadr].asm.strip() == ';nil'):
 			del code[wadr]						# remove ;nil-s
 
-	print 'Writing...', os.path.abspath (output_file)
+	print('Writing...', os.path.abspath (output_file))
 	otf = open (output_file, "w")
-	tempk = code.keys()
+	tempk = list(code.keys())
 	tempk.sort()
 	otf.write(';Generated by PICDIS18, Claudiu Chiculita, 2003.  http://www.ac.ugal.ro/staff/ckiku/software\n')
 	otf.write('\t\t;Select your processor\n\t\tLIST      P=18F252\t\t; modify this\n\t\t#include "p18f252.inc"\t\t; and this\n\n')
@@ -361,5 +364,6 @@ if __name__ == '__main__':
 		#otf.write ('%04X: %04X%s\t%s\t\t\t%s\n' % (a, code[a].bin, code[a].label, code[a].asm, code[a].comment))
 	otf.write('\tEND')
 	otf.close()
-	print 'Done.'
+	print('Done.')
+
 
