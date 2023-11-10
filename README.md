@@ -10,7 +10,7 @@ file_.asm  default output file, containing the assembly instructions, SFR names
 -h	0xHH syle for hex numbers (default is: HHh)   
 -l	lists addresses and binary code of instructions   
 Can be loaded into MPLAB and reassembled immediatedly without any problems!   
-although the processor type should be changed (default 18F252)   
+although the processor type should be changed (default 18F47Q10)   
 
 
 #The starting point for this program was:  
