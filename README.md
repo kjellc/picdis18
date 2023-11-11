@@ -10,7 +10,7 @@ file_.asm  default output file, containing the assembly instructions, SFR names 
 -l	lists addresses and binary code of instructions   
 
 * Can be loaded into MPLAB and reassembled immediatedly without any problems.   
-* Currently supported chip is PIC18F47Q10. For other PIC18 family mcu need to modify the code and INC file with SFR definitions must be replaced.
+* Currently supported chip is PIC18F47Q10. For other PIC18 family mcu need to modify the code and <regnames18.txt> file with SFR definitions must be replaced.
 * Does not support extended instruction set and indexed literal addressing mode.
 
 #Original author   
