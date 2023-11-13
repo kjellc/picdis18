@@ -29,7 +29,7 @@ import getopt, os, sys, string, re
 
 debug = 0
 tabsize = 4
-listing = 0      # =1 => only 1 asm line per each addr. ( -empty +nil )
+listing = 0   # =1 => only 1 asm line per each addr. ( -empty +nil )
 hexstyle = 0  # 0NNNh
 dbstyle = 1   # 0 = hex, 1 = dec
 
@@ -38,6 +38,7 @@ eeprom = {}
 configuration = {}
 covered = {}
 max_addr = 0   # top address loaded by the hex file
+stack = []     # store addresses for code coverage analyze
 
 class Instruction:
     def __init__(self):
@@ -49,15 +50,25 @@ class Instruction:
         self.prefixline = ''
         self.comment = ';'
         self.bytes = 0      # operand length in bytes (2, 4 or 16 for db's)
+        self.stop = False
+
+class Opcode:
+    def __init__(self):
+        self.template = 'X'
+        self.value = 0
+        self.mask = 0
+        self.skip = False
+        self.stop = False
 
 ###################################################################
 def hexc(nr):            #custom hex()
     if hexstyle:
-        return '0x%X' % int(nr)        # C syle
+        return '0x%X' % int(nr)    # C syle
     else:
-        if nr<10: return str(int(nr))    # ASM style
+        if (nr < 10):
+            return str(int(nr))    # ASM style
         t = '%Xh' % int(nr)
-        if t[0] in string.ascii_letters:
+        if (t[0] in string.ascii_letters):
             t = '0' + t
         return t
 
@@ -168,10 +179,17 @@ def make_operand_table():
                 cv = (0 | (cv << 1))   # value 0 to ignore this bit position
                 cm = (0 | (cm << 1))   # mask  0 to ignore this bit position
 
-        oplist.append((asm, cv, cm, (skip != '0'), (stop != '0')))    # append a (asm_template, value, mask) tuple
-                                                                      # Eg: ('addwf F, D, A', 0x4800, 0xfc00, False, False)
+        opc = Opcode()
+        opc.template = asm        # Eg: 'addwf F, D, A'
+        opc.value = cv            # Eg: 0x4800
+        opc.mask = cm             # Eg: 0xfc00
+        opc.skip = (skip != '0')  # Eg: False
+        opc.stop = (stop != '0')  # Eg: False
+
+        oplist.append(opc)
+
     f.close()
-    return tuple(oplist)
+    return oplist
 
 ###################################################################
 # Return the assembly-language template string
@@ -180,15 +198,15 @@ def make_operand_table():
 def matching_opcode(w):
     global operand_table
 
-    for x in operand_table:
-        if (w & x[2]) == x[1]:        # code[].bin & code_mask == code_value
-            return x[0]
-    return "X"                        # unidentifiable binary -- punt
+    for opc in operand_table:
+        if ((w & opc.mask) == opc.value):
+            return opc
+    return Opcode()                         # return dummy opcode 'X' unidentifiable binary -- punt
 
 ###################################################################
 def lookup_adr(addr):
     global code
-    if addr in code:
+    if (addr in code):
         return code[addr]
     else:                            # exceptional case: a jump to a location not defined in hexfile
         x = Instruction()            #                    or a missing second word in a dword instr
@@ -212,13 +230,18 @@ def lookup_adr(addr):
 # Y        double  -movff
 # Z        double  -lfsr
 def assembly_line(addr):
-    global code
+    global code, stack
+
     cod = code[addr]
     w = cod.bin
-    t = matching_opcode(w)       # get the right assembly template
+    opc = matching_opcode(w)       # get the right assembly template
+    t = opc.template
     af = w & 0x100
     code[addr].bytes = 2          # 2 bytes by default
-    if debug:
+    code[addr].stop = opc.stop    # stop coverage analyze after goto, return, branch
+    if (opc.skip):
+        stack.append(addr + 4)
+    if (debug):
         print(hexc(w), t)
     s = []                        # init the return value
     for c in t:                   # for each character in the template
@@ -246,6 +269,7 @@ def assembly_line(addr):
             else:
                 dest = addr + 2 - (0x100 - q) * 2
             s.append(makelabel(dest))
+            stack.append(dest)
             lookup_adr(dest).calls.append(addr)
         elif (c == 'M'):            # insert a rcall/bra relative +- 1023
             q = w & 0x7FF
@@ -254,6 +278,7 @@ def assembly_line(addr):
             else:
                 dest = addr + 2 - ((0x800 - q) * 2)
             s.append(makelabel(dest))
+            stack.append(dest)
             lookup_adr(dest).calls.append(addr)
         elif (c == 'A'):            # access bank = 0 implicit
             if ((w & 0x100) != 0):
@@ -277,6 +302,7 @@ def assembly_line(addr):
             dest = ((w & 0xFF) | ((w2 & 0xFFF) << 8)) * 2
             lookup_adr(dest).calls.append(addr)
             s.append(makelabel(dest))
+            stack.append(dest)
             code[addr].bytes = 4
             if ((w & 0x300) ^ 0x100) == 0:    # only if its a 'call' and 's' is set
                 s.append(',FAST')
@@ -317,11 +343,27 @@ def eep_cfg_txt():                    # generate text for the eeprom and configu
 ###############################################################
 def analyze_coverage():
 
-    global code, covered
+    global code, covered, stack
 
-    # dummy - cover 0..99
-    for addr in range(100):
-        covered[addr] = True
+    while (len(stack) > 0):
+        print ('stack len %d' % len(stack))
+        addr = stack.pop()
+        print (addr)
+        if (addr in covered):
+            continue
+        stop = False
+        while (not stop):
+            covered[addr] = True
+            if (addr in code):
+                print ('addr in code')
+                assembly_line(addr)
+                stop = code[addr].stop
+                addr += code[addr].bytes
+            else: # word is not programmed read as 0xffff (nil)
+                print ('addr not in code')
+                addr += 2
+            addr = addr & 0xfffff # 20 bit address space
+            stop = stop or (addr in covered) # stop if address is already covered
 
 ###############################################################
 def ascii_char(code):
@@ -364,18 +406,14 @@ if __name__ == '__main__':
     max_addr = max(tempk);
     print('max_addr = %d' % int(max_addr))
 
-    for wadr in tempk:
-        assembly_line(wadr)
-
     print('Analyze code coverage...')
+    stack.append(0); # start address
     analyze_coverage()
-
-    covered_addresses = list(covered.keys())
 
     print('Arranging...')
     skip_till_wadr = 0;
+
     for wadr in tempk:
-        print(wadr)
         if (wadr < skip_till_wadr):
             continue
         cod = code[wadr]
@@ -389,7 +427,7 @@ if __name__ == '__main__':
         if ((wadr - 2) not in code):            # must put an ORG if not contiguous
             cod.prefixline += '\t\tORG %s \n' % (hexc(wadr))
 
-        if (wadr not in covered_addresses):
+        if (wadr not in covered):
             cod.asm = '%s%s,%s' % ('db'.ljust(5, ' '), cod.bin & 0xff, cod.bin >> 8)
             cod.comment = ';%s%s' % (ascii_char(cod.bin & 0xff), ascii_char(cod.bin >> 8))
             cod.bytes = 2
@@ -399,7 +437,7 @@ if __name__ == '__main__':
                     break # listing format
                 if (next_wadr not in code):
                     break # break if there is no code
-                if (next_wadr in covered_addresses):
+                if (next_wadr in covered):
                     break # break is db finishes
                 if ((len(code[next_wadr].calls) > 0) or (len(code[next_wadr].calls) > 0)):
                     break # break if db has label or comment
@@ -427,7 +465,7 @@ if __name__ == '__main__':
             otf.write(code[addr].prefixline)
 
         comment_spacing = 0
-        if code[addr].comment:
+        if (code[addr].comment):
             # prefix with tabs
             comment_spacing = ('\t' * int(((72 if (code[addr].asm.startswith('db')) else 32) + 3 - len(code[addr].asm.expandtabs(tabsize))) / tabsize))
         else:
