@@ -60,6 +60,11 @@ class Opcode:
         self.skip = False
         self.stop = False
 
+class StackItem:
+    def __ini__(self):
+        self:addr = 0
+        self:bank = 0
+
 ###################################################################
 def hexc(nr):            #custom hex()
     if (hexstyle):
@@ -232,7 +237,7 @@ def lookup_adr(addr):
 # Y        double  -movff
 # Z        double  -lfsr
 def assembly_line(addr):
-    global code, stack
+    global code, stack, bank
 
     cod = code[addr]
     w = cod.bin
@@ -243,13 +248,20 @@ def assembly_line(addr):
     code[addr].bytes = 2          # 2 bytes by default
     code[addr].stop = opc.stop    # stop coverage analyze after goto, return, branch
     if (opc.skip):
-        stack.append(addr + 4)
+        sti = StackItem()
+        sti.addr = addr + 4
+        sti.bank = bank
+        stack.append(sti)
     if (debug):
         print(hexc(w), t)
     s = []                        # init the return value
     for c in t:                   # for each character in the template
         if (c == 'F'):            # insert a register-file address
             q = w & 0xFF
+            if (af != 0):         # banked, calculate and search for SFR name, add it to comment if found
+                reg_name = reg_names.get(q | (bank << 8), '')
+                if (reg_name):
+                    code[addr].comment += ' ' + reg_name
             if ((af == 0) and (q >= 0x80)):
                 s.append(reg_names.get(q | 0xF00, hexc(q)))
             else:
@@ -272,7 +284,10 @@ def assembly_line(addr):
             else:
                 dest = addr + 2 - (0x100 - q) * 2
             s.append(makelabel(dest))
-            stack.append(dest)
+            sti = StackItem()
+            sti.addr = dest
+            sti.bank = bank
+            stack.append(sti)
             lookup_adr(dest).calls.append(addr)
         elif (c == 'M'):            # insert a rcall/bra relative +- 1023
             q = w & 0x7FF
@@ -281,7 +296,10 @@ def assembly_line(addr):
             else:
                 dest = addr + 2 - ((0x800 - q) * 2)
             s.append(makelabel(dest))
-            stack.append(dest)
+            sti = StackItem()
+            sti.addr = dest
+            sti.bank = bank
+            stack.append(sti)
             lookup_adr(dest).calls.append(addr)
         elif (c == 'A'):            # access bank = 0 implicit
             if ((w & 0x100) != 0):
@@ -305,7 +323,10 @@ def assembly_line(addr):
             dest = ((w & 0xFF) | ((w2 & 0xFFF) << 8)) * 2
             lookup_adr(dest).calls.append(addr)
             s.append(makelabel(dest))
-            stack.append(dest)
+            sti = StackItem()
+            sti.addr = dest
+            sti.bank = bank
+            stack.append(sti)
             code[addr].bytes = 4
             if ((w & 0x300) ^ 0x100) == 0:    # only if its a 'call' and 's' is set
                 s.append(',FAST')
@@ -321,6 +342,10 @@ def assembly_line(addr):
                    s.append(' ')
             else:
                 s.append(c)
+
+    # tracking bank
+    if (t == 'movlb C'):
+        bank = w & 0xF
 
     code[addr].asm = ''.join(s)
     #print(code[addr].asm)
@@ -347,11 +372,13 @@ def eep_cfg_txt():                    # generate text for the eeprom and configu
 ###############################################################
 def analyze_coverage():
 
-    global code, covered, stack
+    global code, covered, stack, bank
 
     while (len(stack) > 0):
         #print ('stack len %d' % len(stack))
-        addr = stack.pop()
+        sti = stack.pop()
+        addr = sti.addr;
+        bank = sti.bank;
         #print (addr)
         if (addr in covered):
             continue
@@ -410,8 +437,13 @@ if __name__ == '__main__':
     max_addr = max(tempk);
     print('max_addr = %d' % int(max_addr))
 
+    # set start condition
+    sti = StackItem()
+    sti.addr = 0
+    sti.bank = 0
+    stack.append(sti)
+
     print('Analyze code coverage...')
-    stack.append(0); # start address
     analyze_coverage()
 
     print('Arranging...')
