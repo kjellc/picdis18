@@ -30,7 +30,7 @@ import getopt, os, sys, string, re
 debug = 0
 tabsize = 4
 listing = 0   # =1 => only 1 asm line per each addr. ( -empty +nil )
-hexstyle = 0  # 0NNNh
+hexstyle = 1  # 0 = 0NNh, 1 = 0xNN
 dbstyle = 1   # 0 = hex, 1 = dec
 
 code = {}     # key=(even addresses),  value=Instruction(s)
@@ -62,7 +62,9 @@ class Opcode:
 
 ###################################################################
 def hexc(nr):            #custom hex()
-    if hexstyle:
+    if (hexstyle):
+        if (nr < 10):
+            return str(int(nr))
         return '0x%X' % int(nr)    # C syle
     else:
         if (nr < 10):
@@ -132,7 +134,7 @@ def read_registry_names():
     rn = f.readlines()
     for x in rn:
         x = x.strip()
-        if x == "":
+        if (x == ""):
             continue
         a, b = x.split(' ')
         regn[int(a, 16)] = b
@@ -236,6 +238,7 @@ def assembly_line(addr):
     w = cod.bin
     opc = matching_opcode(w)       # get the right assembly template
     t = opc.template
+    #print (t)
     af = w & 0x100
     code[addr].bytes = 2          # 2 bytes by default
     code[addr].stop = opc.stop    # stop coverage analyze after goto, return, branch
@@ -314,12 +317,13 @@ def assembly_line(addr):
             s.append('DE ' + hexc(w) + '\t\t;WARNING: unknown instruction!')
         else:                    # insert this source-code character
             if (c == ' '):
-                while (len(s) < 6):
+                while (len(s) < 7):
                    s.append(' ')
             else:
                 s.append(c)
 
     code[addr].asm = ''.join(s)
+    #print(code[addr].asm)
 
 ###############################################################
 def eep_cfg_txt():                    # generate text for the eeprom and configuration words
@@ -346,21 +350,21 @@ def analyze_coverage():
     global code, covered, stack
 
     while (len(stack) > 0):
-        print ('stack len %d' % len(stack))
+        #print ('stack len %d' % len(stack))
         addr = stack.pop()
-        print (addr)
+        #print (addr)
         if (addr in covered):
             continue
         stop = False
         while (not stop):
             covered[addr] = True
             if (addr in code):
-                print ('addr in code')
+                #print ('addr in code')
                 assembly_line(addr)
                 stop = code[addr].stop
                 addr += code[addr].bytes
             else: # word is not programmed read as 0xffff (nil)
-                print ('addr not in code')
+                #print ('addr not in code')
                 addr += 2
             addr = addr & 0xfffff # 20 bit address space
             stop = stop or (addr in covered) # stop if address is already covered
@@ -459,19 +463,19 @@ if __name__ == '__main__':
     for addr in tempk:
         if (not listing and (addr < skip_till_addr)):
             continue
-        if listing:
+        if (listing):
             otf.write('%05X %04X\t' % (int(addr), int(code[addr].bin)))
         else:
             otf.write(code[addr].prefixline)
 
-        comment_spacing = 0
+        comment_spacing = ''
         if (code[addr].comment):
             # prefix with tabs
             comment_spacing = ('\t' * int(((72 if (code[addr].asm.startswith('db')) else 32) + 3 - len(code[addr].asm.expandtabs(tabsize))) / tabsize))
         else:
             comment = ''
 
-        otf.write('%s\t%s%s%s\n' % (code[addr].label, code[addr].asm, comment_spacing, code[addr].comment))
+        otf.write('%s%s%s%s\n' % (code[addr].label.ljust(8), code[addr].asm, comment_spacing, code[addr].comment))
         skip_till_addr = addr + code[addr].bytes;
 
     otf.write('\tEND')
