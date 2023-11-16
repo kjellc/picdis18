@@ -397,6 +397,92 @@ def analyze_coverage():
             stop = stop or (addr in covered) # stop if address is already covered
 
 ###############################################################
+def is_movwf_tblptrx(bin):
+    return (bin == 0x6EF6) or (bin == 0x6EF7) or (bin == 0x6EF8)
+
+###############################################################
+def is_code(addr):
+    #global code, covered
+    return (addr in code) and (addr in covered)
+
+###############################################################
+def analyze_table_pointers():
+    addr_tblptrl = 0
+    addr_tblptrh = 0
+    addr_tblptru = 0
+
+    addr = max_addr
+
+    print("max_addr = %s" % max_addr)
+
+    while (addr >= 0):
+        if (is_code(addr)):
+
+            if (is_movwf_tblptrx(code[addr].bin)):
+
+                # backward serach for tblptr loading opcodes
+                paddr = addr
+
+                l_found = False
+                h_found = False
+                u_found = False
+
+                while (paddr >=0) and (paddr > (addr - 100)) and (is_code(paddr)) and ((not l_found) or (not h_found) or (not u_found)):
+
+                    if (not l_found and (code[paddr].bin == 0x6EF6)): #tblptrl
+                        addr_tblptrl = paddr;
+                        code[paddr].comment += ' tblptrl '
+                        laddr = paddr - 2
+                        while ((laddr >= 0) and (laddr > (paddr - 20)) and is_code(laddr) and not is_movwf_tblptrx(code[laddr].bin)):
+                            if ((code[laddr].bin == 0x0F01) and is_code(laddr - 2) and (code[laddr - 2].bin == 0xB0D8)):
+                                laddr = laddr - 4
+                                continue
+                            if ((code[laddr].bin & 0xfe00) == 0x0e00):
+                                code[laddr].comment += ' L ADDR '
+                                l_found = True
+                            laddr = laddr - 2
+
+                    if (not h_found and (code[paddr].bin == 0x6EF7)): #tblptrh
+                        addr_tblptrh = paddr;
+                        code[paddr].comment += ' tblptrh '
+                        laddr = paddr - 2
+                        while ((laddr >= 0) and (laddr > (paddr - 20)) and is_code(laddr) and not is_movwf_tblptrx(code[laddr].bin)):
+                            if ((code[laddr].bin == 0x0F01) and is_code(laddr - 2) and (code[laddr - 2].bin == 0xB0D8)):
+                                laddr = laddr - 4
+                                continue
+                            if ((code[laddr].bin & 0xfe00) == 0x0e00):
+                                code[laddr].comment += ' H ADDR '
+                                h_found = True
+                            laddr = laddr - 2
+
+                    if (not u_found and (code[paddr].bin == 0x6EF8)): #tblptru
+                        addr_tblptru = paddr;
+                        code[paddr].comment += ' tblptru '
+                        laddr = paddr - 2
+                        while ((laddr >= 0) and (laddr > (paddr - 20)) and is_code(laddr) and not is_movwf_tblptrx(code[laddr].bin)):
+                            if ((code[laddr].bin == 0x0F01) and is_code(laddr - 2) and (code[laddr - 2].bin == 0xB0D8)):
+                                laddr = laddr - 4
+                                continue
+                            if ((code[laddr].bin & 0xfe00) == 0x0e00):
+                                code[laddr].comment += ' U ADDR '
+                                u_found = True
+                            laddr = laddr - 2
+
+                    paddr = paddr - 2
+
+                if (l_found and h_found and u_found):
+                    # calculate table address
+                    # ...
+                    # add label to table
+                    # ...
+                    # replace pointer loading opcodes with (low LABEL, high LABEL, upper LABEL)
+                    # ....
+
+                    addr = min(addr_tblptrl, addr_tblptrh, addr_tblptru)
+
+        addr = addr - 2
+
+###############################################################
 def ascii_char(code):
     if ((code < 32) or (code > 127)):
         return '.'
@@ -445,6 +531,9 @@ if __name__ == '__main__':
 
     print('Analyze code coverage...')
     analyze_coverage()
+
+    print('Analyze table pointers...')
+    analyze_table_pointers()
 
     print('Arranging...')
     skip_till_wadr = 0;
