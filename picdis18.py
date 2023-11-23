@@ -40,6 +40,8 @@ covered = {}
 max_addr = 0   # top address loaded by the hex file
 stack = []     # store addresses for code coverage analyze
 
+table_defs = []  # store TableDef's
+
 class Instruction:
     def __init__(self):
         self.bin = 0        # taken from hex
@@ -65,6 +67,11 @@ class StackItem:
         self:addr = 0
         self:bank = 0
 
+class TableDef:
+    def __init__(self):
+        self.comment = ''
+        self.data = []
+
 ###################################################################
 def hexc(nr):            #custom hex()
     if (hexstyle):
@@ -83,6 +90,11 @@ def hexc(nr):            #custom hex()
 def makelabel(nr):
     s = '%X' % int(nr)
     return 'p' + s.rjust(6).replace(' ', '_')
+
+###################################################################
+def maketablelabel(nr):
+    s = '%X' % int(nr)
+    return 't' + s.rjust(6).replace(' ', '_')
 
 ###################################################################
 # Reads an Intel HEX file into the `code` dictionary
@@ -427,7 +439,11 @@ def analyze_table_pointers():
                 h_found = False
                 u_found = False
 
-                while (paddr >=0) and (paddr > (addr - 100)) and (is_code(paddr)) and ((not l_found) or (not h_found) or (not u_found)):
+                l_op_addr = 0
+                h_op_addr = 0
+                u_op_addr = 0
+
+                while (paddr >= 0) and (paddr > (addr - 100)) and (is_code(paddr)) and ((not l_found) or (not h_found) or (not u_found)):
 
                     if (not l_found and (code[paddr].bin == 0x6EF6)): #tblptrl
                         addr_tblptrl = paddr;
@@ -439,7 +455,9 @@ def analyze_table_pointers():
                                 continue
                             if ((code[laddr].bin & 0xfe00) == 0x0e00):
                                 code[laddr].comment += ' L ADDR '
+                                l_op_addr = laddr
                                 l_found = True
+                                break
                             laddr = laddr - 2
 
                     if (not h_found and (code[paddr].bin == 0x6EF7)): #tblptrh
@@ -452,7 +470,9 @@ def analyze_table_pointers():
                                 continue
                             if ((code[laddr].bin & 0xfe00) == 0x0e00):
                                 code[laddr].comment += ' H ADDR '
+                                h_op_addr = laddr
                                 h_found = True
+                                break
                             laddr = laddr - 2
 
                     if (not u_found and (code[paddr].bin == 0x6EF8)): #tblptru
@@ -465,18 +485,32 @@ def analyze_table_pointers():
                                 continue
                             if ((code[laddr].bin & 0xfe00) == 0x0e00):
                                 code[laddr].comment += ' U ADDR '
+                                u_op_addr = laddr
                                 u_found = True
+                                break
                             laddr = laddr - 2
 
                     paddr = paddr - 2
 
                 if (l_found and h_found and u_found):
+
                     # calculate table address
-                    # ...
-                    # add label to table
-                    # ...
-                    # replace pointer loading opcodes with (low LABEL, high LABEL, upper LABEL)
-                    # ....
+                    table_addr = ((code[u_op_addr].bin & 0xff) << 16) | ((code[h_op_addr].bin & 0xff) << 8) | (code[l_op_addr].bin & 0xff)
+
+                    if (table_addr not in code):
+                        print("Invalid table address found!!! %s" % table_addr)
+                        code[u_op_addr].comment += ' INVALID !!!'
+                        code[h_op_addr].comment += ' INVALID !!!'
+                        code[l_op_addr].comment += ' INVALID !!!'
+                    else:
+                        # add label to table
+                        code[table_addr].label = maketablelabel(table_addr)
+                        print("Table label added %s" % code[table_addr].label)
+
+                        # replace pointer loading opcodes with (low LABEL, high LABEL, upper LABEL)
+                        code[u_op_addr].asm = ('movlw' if ((code[u_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  upper ' + maketablelabel(table_addr)
+                        code[h_op_addr].asm = ('movlw' if ((code[h_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  high ' + maketablelabel(table_addr)
+                        code[l_op_addr].asm = ('movlw' if ((code[l_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  low ' + maketablelabel(table_addr)
 
                     addr = min(addr_tblptrl, addr_tblptrh, addr_tblptru)
 
@@ -488,6 +522,108 @@ def ascii_char(code):
         return '.'
     else:
         return chr(code)
+
+###############################################################
+def read_table_defs(file):
+    global table_defs
+
+    tmp_table_def = TableDef()
+
+    for s in file.readlines():
+        if (s[0] == ';'):
+            #print("Table comment found = %s" % s[1:])
+
+            #store previous tmp_table_def into table_defs
+            if (len(tmp_table_def.data) > 0):
+                table_defs.append(tmp_table_def)
+                tmp_table_def = TableDef()
+
+            tmp_table_def.comment = s[1:].strip()
+
+        elif re.match(r'(\d+\D+)+', s):
+            for b in re.findall(r'\d+', s):
+                tmp_table_def.data.append(int(b))
+
+    file.close()
+
+    # store the last one
+    if (len(tmp_table_def.data) > 0):
+        #store tmp_table_def into table_defs
+        table_defs.append(tmp_table_def)
+
+    #for t in table_defs:
+    #   print('"%s" %s' % (t.comment, len(t.data)))
+
+###############################################################
+def search_table_def_matched():
+
+    global code, covered, table_defs
+
+    waddrs = list(code.keys())
+    waddrs.sort()
+
+    for t in table_defs:
+
+        #if (t.comment != "Dummy test"):
+        #   continue
+
+        print('Sarching for %s' % t.comment)
+        print('len(t.data) = %s' % len(t.data))
+        print('max_addr = %s' % max_addr)
+
+        byte_addr = 0
+
+        while (byte_addr <= (max_addr + 1)):
+
+            #print('waddr = %s' % waddr)
+
+            # word address for searching
+            waddr = byte_addr & ~1
+            if ((waddr not in code) or (waddr in covered)):
+                byte_addr = byte_addr + 1
+                continue
+
+            matching = True
+            offset = 0
+
+            while (matching):
+
+                #if (offset > 0):
+                #    print('offset = %s' % offset)
+
+                waddr2 = (byte_addr + offset) & ~1
+
+                #print('byte_addr = %s' % byte_addr)
+                #print('waddr2 = %s' % waddr2)
+
+                if ((waddr2 not in code) or (waddr2 in covered)):
+                    matching = False
+                    break
+
+                if ((byte_addr + offset) & 0x01):
+                    byte = code[waddr2].bin >> 8
+                else:
+                    byte = code[waddr2].bin & 0xff
+
+                #print('byte = %s' % byte)
+
+                if (offset < len(t.data)):
+                    #print('%s %s %s' % ((byte_addr + offset), byte, t.data[offset]))
+                    if (byte != t.data[offset]):
+                        matching = False
+                        break
+
+                else: # all bytes compared, matching is found
+                    break
+
+                offset = offset + 1
+
+            if (matching): # pattern found, add prefixline
+                print("!!!!!!!!!!!!! Pattern found at %s" % waddr)
+                code[waddr].prefixline = code[waddr].prefixline + ('\n' if (code[waddr].prefixline) else '') + '\n' + (8 * ' ') + ';' + t.comment + \
+                    (' (with offset +1) ' if (byte_addr & 1) else '') + '\n'
+
+            byte_addr = byte_addr + 1
 
 ###############################################################
 # main entry to the program
@@ -507,6 +643,12 @@ if __name__ == '__main__':
     except:
         print(__doc__)
         sys.exit(2)
+
+    # todo - read from input args
+    table_defs_file = 'dbs.txt'
+
+    print('Reading table defs file...', os.path.abspath(table_defs_file))
+    read_table_defs(open(table_defs_file, "r"))
 
     print('Building tables...')
     operand_table = make_operand_table()
@@ -534,6 +676,9 @@ if __name__ == '__main__':
 
     print('Analyze table pointers...')
     analyze_table_pointers()
+
+    print('Searching for table definitions matches...');
+    search_table_def_matched()
 
     print('Arranging...')
     skip_till_wadr = 0;
@@ -564,8 +709,8 @@ if __name__ == '__main__':
                     break # break if there is no code
                 if (next_wadr in covered):
                     break # break is db finishes
-                if ((len(code[next_wadr].calls) > 0) or (len(code[next_wadr].calls) > 0)):
-                    break # break if db has label or comment
+                if ((len(code[next_wadr].calls) > 0) or code[next_wadr].label.strip() or code[next_wadr].prefixline):
+                    break # break if db has label or comment or prefixline
                 next_bin = code[next_wadr].bin
                 cod.asm += ',%s,%s' % (next_bin & 0xff, next_bin >> 8)
                 cod.comment += '%s%s' % (ascii_char(next_bin & 0xff), ascii_char(next_bin >> 8))
