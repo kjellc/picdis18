@@ -29,16 +29,17 @@ import getopt, os, sys, string, re
 
 debug = 0
 tabsize = 4
-listing = 0   # =1 => only 1 asm line per each addr. ( -empty +nil )
-hexstyle = 1  # 0 = 0NNh, 1 = 0xNN
-dbstyle = 1   # 0 = hex, 1 = dec
+listing = 0    # =1 => only 1 asm line per each addr. ( -empty +nil )
+hexstyle = 1   # 0 = 0NNh, 1 = 0xNN
+dbstyle = 1    # 0 = hex, 1 = dec
 
-code = {}     # key=(even addresses),  value=Instruction(s)
+code = {}       # key=(even addresses),  value=Instruction(s)
 eeprom = {}
 configuration = {}
 covered = {}
-max_addr = 0   # top address loaded by the hex file
-stack = []     # store addresses for code coverage analyze
+max_addr = 0    # top address loaded by the hex file
+stack = []      # store addresses for code coverage analyze
+conf_regs = {}  # key = config address, value = config register name
 
 table_defs = []  # store TableDef's
 
@@ -101,7 +102,7 @@ def maketablelabel(nr):
 # the keys are addresses and code[].bin has the object code
 #
 def read_object_code(objectfile):
-    global code
+    global code, conf_regs
     exta = '0000'                          # prefix for extended addr
     for x in objectfile.readlines():
         if x[0] == ':':                    # Intel form        :CCAAAATTllhhllhh....rr
@@ -124,21 +125,30 @@ def read_object_code(objectfile):
             teco = {}                       # temporary code
             cks = nb + (ad & 0xFF) + ((ad >> 8) & 0xFF) + ty    # init checksum
             dd = x[9:-2]                    # isolate the data
-            ad /= 2                         # convert byte to word address
+
+            # dd = one row from hex file, data bytes
+            #print(conf_regs)
+
             while dd:
-                d = int(dd[0:2], 16), int(dd[2:4], 16)   # convert 2 bytes
-                teco[ad * 2] = Instruction()             # add a new key = address
-                teco[ad * 2].bin = (d[1] << 8) + d[0]    # write a word in code
-                cks += d[0] + d[1]                       # update checksum
-                ad += 1                                  # bump the code address
-                dd = dd[4:]                              # drop old data
-            if ((int(x[-2:], 16) + cks) & 0xFF != 0):    # verify the checksum
+
+                if (ad in conf_regs):
+                    configuration[ad] = int(dd[0:2], 16)
+
+                if ((ad & 1) == 0):
+                    d = int(dd[0:2], 16), int(dd[2:4], 16)    # convert 2 bytes
+                    teco[ad & ~1] = Instruction()             # add a new key = address
+                    teco[ad & ~1].bin = (d[1] << 8) + d[0]    # write a word in code
+
+                cks += int(dd[0:2], 16)                       # update checksum
+                ad += 1                                       # bump the code address
+                dd = dd[2:]                                   # drop one byte
+
+            if ((int(x[-2:], 16) + cks) & 0xFF != 0):         # verify the checksum
                 raise ValueError((hexc(-cks), hexc(int(x[-2:], 16))))
-            if (ad < (0x300000 / 2)):
+
+            if (ad < 0x300000):
                 code.update(teco)
-            elif (ad < (0xF00000/2)):
-                configuration.update(teco)
-            else:
+            if ((ad >= 0x310000) and (ad < 0x3f0000)):
                 eeprom.update(teco)
         else:
             print("Ignoring line: ", x)                    # ignore anything else
@@ -157,6 +167,22 @@ def read_registry_names():
         regn[int(a, 16)] = b
     f.close()
     return regn
+
+###################################################################
+def read_conf_regs():
+    global conf_regs
+    # Provide symbolic names for all config words
+    f = open('confregs18.txt', "r");
+    conf_regs = {}
+    rn = f.readlines()
+    print(rn)
+    for x in rn:
+        x = x.strip()
+        if (x == ""):
+            continue
+        a, b = x.split(' ')
+        conf_regs[int(a, 16)] = b
+    f.close()
 
 ###################################################################
 # Read a specially-formatted string to build the opcode-identification table.
@@ -315,11 +341,13 @@ def assembly_line(addr):
             lookup_adr(dest).calls.append(addr)
         elif (c == 'A'):            # access bank = 0 implicit
             if ((w & 0x100) != 0):
-                s.append('BANKED')
+                s.append('b') # 'BANKED'
             elif s[-3:] == [',', 'f', ',']:# do not show:    ,f,0
                 s = s[:-3]
             elif s[-1] == ',':    # do not show:    ,0
                 del s[-1]
+            if ((w & 0x100) == 0):
+                s.append(',a') # ',ACCESS'
         elif (c == 'S'):            # =1 restore reg. on ret: retfie/return (implicit 0)
             if (w & 0x1) == 1:
                 s.append('FAST')
@@ -367,9 +395,9 @@ def eep_cfg_txt():                    # generate text for the eeprom and configu
     txt = ''
     for x in configuration:
         if listing:
-            txt += '%06X %04X\n' % (int(x), int(configuration[x].bin))
+            txt += '%06X %04X\n' % (int(x), int(configuration[x]))
         else:
-            txt += '\t\t__CONFIG %s, %s\n' % (hexc(x), hexc(configuration[x].bin))
+            txt += '\t\tCONFIG %s = %s\n' % ((conf_regs[x] if (x in conf_regs) else hexc(x)), hexc(configuration[x]))
     if eeprom:
         txt += '\t\t;eeprom:\n'
         for x in eeprom:            # hopefully the hex will have very fey eeprom location defined
@@ -508,7 +536,7 @@ def analyze_table_pointers():
                         print("Table label added %s" % code[table_addr].label)
 
                         # replace pointer loading opcodes with (low LABEL, high LABEL, upper LABEL)
-                        code[u_op_addr].asm = ('movlw' if ((code[u_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  upper ' + maketablelabel(table_addr)
+                        code[u_op_addr].asm = ('movlw' if ((code[u_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  low highword ' + maketablelabel(table_addr)
                         code[h_op_addr].asm = ('movlw' if ((code[h_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  high ' + maketablelabel(table_addr)
                         code[l_op_addr].asm = ('movlw' if ((code[l_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  low ' + maketablelabel(table_addr)
 
@@ -518,7 +546,7 @@ def analyze_table_pointers():
 
 ###############################################################
 def ascii_char(code):
-    if ((code < 32) or (code > 127)):
+    if ((code < 32) or (code > 126)):
         return '.'
     else:
         return chr(code)
@@ -654,6 +682,9 @@ if __name__ == '__main__':
     operand_table = make_operand_table()
     reg_names = read_registry_names()
 
+    print('Reading config regs names...')
+    read_conf_regs()
+
     print('Reading object file...', os.path.abspath(input_file))
     read_object_code(open(input_file, "r"))
 
@@ -754,7 +785,8 @@ if __name__ == '__main__':
     tempk = list(code.keys())
     tempk.sort()
     otf.write(';Generated by PICDIS18, Claudiu Chiculita, 2003.  http://www.ac.ugal.ro/staff/ckiku/software\n')
-    otf.write('\t\t;Select your processor\n\t\tLIST      P=18F47Q10\t\t; modify this\n\t\t#include "p18F47Q10.inc"\t\t; and this\n\n')
+    otf.write('\t\t;Select your processor\n          PROCESSOR 18F47Q10\t\t; modify this\n\t\t;#include "p18F47Q10.inc"\t\t; and this\n\n')
+    otf.write('          #include <xc.inc>\n')
     otf.write(eep_cfg_txt())
 
     skip_till_addr = 0;
@@ -773,7 +805,7 @@ if __name__ == '__main__':
         else:
             comment = ''
 
-        otf.write('%s%s%s%s\n' % (code[addr].label.ljust(8), code[addr].asm, comment_spacing, code[addr].comment))
+        otf.write('%s%s%s%s\n' % ((code[addr].label + (':' if code[addr].label.strip() else '')).ljust(10), code[addr].asm, comment_spacing, code[addr].comment))
         skip_till_addr = addr + code[addr].bytes;
 
     otf.write('\tEND')
