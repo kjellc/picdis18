@@ -552,6 +552,10 @@ def ascii_char(code):
         return chr(code)
 
 ###############################################################
+def fix_line_wrap(s):
+    return (s if (not s or (s[-1] != '\\')) else s + '.')
+
+###############################################################
 def read_table_defs(file):
     global table_defs
 
@@ -788,6 +792,8 @@ if __name__ == '__main__':
     otf.write('\t\t;Select your processor\n          PROCESSOR 18F47Q10\t\t; modify this\n\t\t;#include "p18F47Q10.inc"\t\t; and this\n\n')
     otf.write('          #include <xc.inc>\n')
     otf.write(eep_cfg_txt())
+    otf.write('          PSECT RESETVEC, abs\n');
+    otf.write('RESETVEC:\n\n');
 
     skip_till_addr = 0;
     for addr in tempk:
@@ -805,9 +811,9 @@ if __name__ == '__main__':
         else:
             comment = ''
 
-        otf.write('%s%s%s%s\n' % ((code[addr].label + (':' if code[addr].label.strip() else '')).ljust(10), code[addr].asm, comment_spacing, code[addr].comment))
+        otf.write('%s%s%s%s\n' % ((code[addr].label + (':' if code[addr].label.strip() else '')).ljust(10), code[addr].asm, comment_spacing, fix_line_wrap(code[addr].comment)))
         skip_till_addr = addr + code[addr].bytes;
 
-    otf.write('\tEND')
+    otf.write('          END RESETVEC')
     otf.close()
     print('Done.')
