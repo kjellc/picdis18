@@ -674,6 +674,38 @@ if __name__ == '__main__':
     print('Analyze code coverage...')
     analyze_coverage()
 
+    # TODO add interrupt vectors analyze as option via args
+
+    ##### Interrupt vectors #########################
+
+    if (0x0008 in code):
+        sti = StackItem()
+        sti.addr = 0x0008;
+        sti.bank = 0
+        stack.append(sti)
+
+        print('Analyze Interrupt vector 1...')
+        analyze_coverage();
+
+        code[0x0008].prefixline += '; Interrupt vector 1 \n'
+
+    if (0x0018 in code):
+
+        sti = StackItem()
+        sti.addr = 0x0018;
+        sti.bank = 0
+        stack.append(sti)
+
+        print('Analyze Interrupt vector 2...')
+        analyze_coverage();
+
+        code[0x0018].prefixline += '; Interrupt vector 2 \n'
+
+    #################################################
+
+
+
+
     print('Analyze table pointers...')
     analyze_table_pointers()
 
