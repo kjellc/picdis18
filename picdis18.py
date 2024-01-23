@@ -1,14 +1,17 @@
-"""PICDIS18.PY -- a disassembler for PIC18 microcontroller code v0.4
+"""PICDIS18.PY -- a disassembler for PIC18 microcontroller code v0.5
 Claudiu.Chiculita@ugal.ro    http://www.ac.ugal.ro/staff/ckiku/software/
 
-picdis18.py  [-h] [-l] [-o outputfile] file.hex
+picdis18.py  [-h] [-l] [-int1] [-int2] [-d dbfile] [-o outputfile] file.hex
 
 file.hex   input .HEX file in Intel format
 file_.asm  default output file, containing the assembly instructions, SFR names
            directives, branch/call labels, callers of procedures, comments
--o    save result to the specified file
--h    0xHH syle for hex numbers (default is: HHh)
--l    lists addresses and binary code of instructions
+-o      save result to the specified file
+-h      0xHH syle for hex numbers (default is: HHh)
+-l      lists addresses and binary code of instructions
+--int1  dissasembly interrupt 1 entry point
+--int2  dissasembly interrupt 2 entry point
+-d      use specified db definitions file (see example_db.txt for details)
 Can be loaded into MPLAB and reassembled immediatedly without any problems!
 although the processor type should be changed (default 18F47Q10)
 """
@@ -175,7 +178,7 @@ def read_conf_regs():
     f = open('confregs18.txt', "r");
     conf_regs = {}
     rn = f.readlines()
-    print(rn)
+
     for x in rn:
         x = x.strip()
         if (x == ""):
@@ -453,7 +456,7 @@ def analyze_table_pointers():
 
     addr = max_addr
 
-    print("max_addr = %s" % max_addr)
+    #print("max_addr = %s" % max_addr)
 
     while (addr >= 0):
         if (is_code(addr)):
@@ -533,7 +536,7 @@ def analyze_table_pointers():
                     else:
                         # add label to table
                         code[table_addr].label = maketablelabel(table_addr)
-                        print("Table label added %s" % code[table_addr].label)
+                        #print("Table label added %s" % code[table_addr].label)
 
                         # replace pointer loading opcodes with (low LABEL, high LABEL, upper LABEL)
                         code[u_op_addr].asm = ('movlw' if ((code[u_op_addr].bin & 0xff00) == 0x0e00) else 'addlw') + '  low highword ' + maketablelabel(table_addr)
@@ -596,18 +599,13 @@ def search_table_def_matched():
 
     for t in table_defs:
 
-        #if (t.comment != "Dummy test"):
-        #   continue
-
-        print('Sarching for %s' % t.comment)
-        print('len(t.data) = %s' % len(t.data))
-        print('max_addr = %s' % max_addr)
+        #print('Sarching for %s' % t.comment)
+        #print('len(t.data) = %s' % len(t.data))
+        #print('max_addr = %s' % max_addr)
 
         byte_addr = 0
 
         while (byte_addr <= (max_addr + 1)):
-
-            #print('waddr = %s' % waddr)
 
             # word address for searching
             waddr = byte_addr & ~1
@@ -620,13 +618,7 @@ def search_table_def_matched():
 
             while (matching):
 
-                #if (offset > 0):
-                #    print('offset = %s' % offset)
-
                 waddr2 = (byte_addr + offset) & ~1
-
-                #print('byte_addr = %s' % byte_addr)
-                #print('waddr2 = %s' % waddr2)
 
                 if ((waddr2 not in code) or (waddr2 in covered)):
                     matching = False
@@ -637,10 +629,7 @@ def search_table_def_matched():
                 else:
                     byte = code[waddr2].bin & 0xff
 
-                #print('byte = %s' % byte)
-
                 if (offset < len(t.data)):
-                    #print('%s %s %s' % ((byte_addr + offset), byte, t.data[offset]))
                     if (byte != t.data[offset]):
                         matching = False
                         break
@@ -651,7 +640,7 @@ def search_table_def_matched():
                 offset = offset + 1
 
             if (matching): # pattern found, add prefixline
-                print("!!!!!!!!!!!!! Pattern found at %s" % waddr)
+                #print(" Pattern found at %s" % waddr)
                 code[waddr].prefixline = code[waddr].prefixline + ('\n' if (code[waddr].prefixline) else '') + '\n' + (8 * ' ') + ';' + t.comment + \
                     (' (with offset +1) ' if (byte_addr & 1) else '') + '\n'
 
@@ -661,26 +650,42 @@ def search_table_def_matched():
 # main entry to the program
 ###############################################################
 if __name__ == '__main__':
+
+    table_defs_file = ''
+    use_interrupt1 = False
+    use_interrupt2 = False
+
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hlo:")
+
+        opts, args = getopt.getopt(sys.argv[1:], "hlo:d:", ["int1", "int2"])
+
         input_file = args[0]
         output_file = input_file[:-4] + '_.asm'
+
         for o, v in opts:
             if (o == '-o'):    # user-supplied output path
                 output_file = v
             elif (o == '-l'):
                 listing = 1
-            elif (o == '-h'):    #ToDo:repair
+            elif (o == '-h'):
                 hexstyle = 1    # 0xNNN
+            elif (o == '-d'):
+                table_defs_file = v
+            elif (o == '--int1'):
+                use_interrupt1 = True
+            elif (o == '--int2'):
+                use_interrupt1 = True
     except:
         print(__doc__)
         sys.exit(2)
 
-    # todo - read from input args
-    table_defs_file = 'dbs.txt'
-
-    print('Reading table defs file...', os.path.abspath(table_defs_file))
-    read_table_defs(open(table_defs_file, "r"))
+    if (table_defs_file != ''):
+        print('Reading table defs file...', os.path.abspath(table_defs_file))
+        try:
+            read_table_defs(open(table_defs_file, "r"))
+        except OSError as e:
+            print(f"Unable to open {table_defs_file}: {e}", file=sys.stderr)
+            sys.exit(2)
 
     print('Building tables...')
     operand_table = make_operand_table()
@@ -690,7 +695,11 @@ if __name__ == '__main__':
     read_conf_regs()
 
     print('Reading object file...', os.path.abspath(input_file))
-    read_object_code(open(input_file, "r"))
+    try:
+        read_object_code(open(input_file, "r"))
+    except OSError as e:
+            print(f"Unable to open {input_file}: {e}", file=sys.stderr)
+            sys.exit(2)
 
     print('Disassemble...')
 
@@ -698,7 +707,7 @@ if __name__ == '__main__':
     tempk.sort()
 
     max_addr = max(tempk);
-    print('max_addr = %d' % int(max_addr))
+    #print('max_addr = %d' % int(max_addr))
 
     # set start condition
     sti = StackItem()
@@ -709,11 +718,9 @@ if __name__ == '__main__':
     print('Analyze code coverage...')
     analyze_coverage()
 
-    # TODO add interrupt vectors analyze as option via args
-
     ##### Interrupt vectors #########################
 
-    if (0x0008 in code):
+    if (use_interrupt1 and (0x0008 in code)):
         sti = StackItem()
         sti.addr = 0x0008;
         sti.bank = 0
@@ -724,7 +731,7 @@ if __name__ == '__main__':
 
         code[0x0008].prefixline += '; Interrupt vector 1 \n'
 
-    if (0x0018 in code):
+    if (use_interrupt2 and (0x0018 in code)):
 
         sti = StackItem()
         sti.addr = 0x0018;
@@ -737,9 +744,6 @@ if __name__ == '__main__':
         code[0x0018].prefixline += '; Interrupt vector 2 \n'
 
     #################################################
-
-
-
 
     print('Analyze table pointers...')
     analyze_table_pointers()
@@ -789,10 +793,13 @@ if __name__ == '__main__':
     tempk = list(code.keys())
     tempk.sort()
     otf.write(';Generated by PICDIS18, Claudiu Chiculita, 2003.  http://www.ac.ugal.ro/staff/ckiku/software\n')
-    otf.write('\t\t;Select your processor\n          PROCESSOR 18F47Q10\t\t; modify this\n\t\t;#include "p18F47Q10.inc"\t\t; and this\n\n')
-    otf.write('          #include <xc.inc>\n')
+    otf.write(';Select your processor\n')
+    otf.write('PROCESSOR 18F47Q10; modify this\n')
+    otf.write('\n')
+    otf.write('#include <xc.inc>\n')
+    otf.write('\n')
     otf.write(eep_cfg_txt())
-    otf.write('          PSECT RESETVEC, abs\n');
+    otf.write('PSECT RESETVEC, abs\n');
     otf.write('RESETVEC:\n\n');
 
     skip_till_addr = 0;
@@ -807,13 +814,13 @@ if __name__ == '__main__':
         comment_spacing = ''
         if (code[addr].comment):
             # prefix with tabs
-            comment_spacing = ('\t' * int(((72 if (code[addr].asm.startswith('db')) else 32) + 3 - len(code[addr].asm.expandtabs(tabsize))) / tabsize))
+            comment_spacing = ('\t' * int(((72 if (code[addr].asm.startswith('db')) else 32) + 3 - (2 + len(code[addr].asm.expandtabs(tabsize)))) / tabsize))
         else:
             comment = ''
 
         otf.write('%s%s%s%s\n' % ((code[addr].label + (':' if code[addr].label.strip() else '')).ljust(10), code[addr].asm, comment_spacing, fix_line_wrap(code[addr].comment)))
         skip_till_addr = addr + code[addr].bytes;
 
-    otf.write('          END RESETVEC')
+    otf.write('END RESETVEC')
     otf.close()
     print('Done.')
