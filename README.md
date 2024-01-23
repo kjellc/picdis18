@@ -3,7 +3,7 @@ A disassembler for PIC18 microcontroller
 
 ### Features and limitations
 
-* Generates MPLAB XC8 compatible assembly file.
+* Generates MPLAB XC8 compatible assembly file
 * Currently uses PIC18F47Q10 SFR and configuration registers definitions. To use other PIC18 family mcu need to modify <regnames18.txt> and <confregs18.txt> files with corresponding definitions
 * Analyzes code covarege. By default uses only reset vector (0x0000) as entry point. To add interrupt vectors to code coverage use int1 and int2 option flags
 * All uncovered code are replaced by 'db' byte definitions. If known tables are used then comments for these can be added from db definitions file (see example_db.txt as example)
@@ -19,9 +19,9 @@ file_.asm  default output file, containing the assembly instructions, SFR names 
 -o	save result to the specified file   
 -h	0xHH syle for hex numbers (default is: HHh)   
 -l	lists addresses and binary code of instructions   
---int1  dissasembly interrupt 1 entry point
---int2  dissasembly interrupt 2 entry point
--d      use specified db definitions file (see example_db.txt for details)
+--int1  dissasembly interrupt 1 entry point    
+--int2  dissasembly interrupt 2 entry point    
+-d      use specified db definitions file (see example_db.txt for details)    
 
 #Original author   
 #Copyright (C) 2002 by Mel Wilson  mailto://mwilson@the-wire.com.  
