@@ -12,6 +12,7 @@ file_.asm  default output file, containing the assembly instructions, SFR names
 --int1  dissasembly interrupt 1 entry point
 --int2  dissasembly interrupt 2 entry point
 -d      use specified db definitions file (see example_db.txt for details)
+-j file Use jump-table definition file
 Can be loaded into MPLAB and reassembled immediatedly without any problems!
 although the processor type should be changed (default 18F47Q10)
 """
@@ -33,7 +34,7 @@ import getopt, os, sys, string, re
 debug = 0
 tabsize = 4
 listing = 0    # =1 => only 1 asm line per each addr. ( -empty +nil )
-hexstyle = 1   # 0 = 0NNh, 1 = 0xNN
+hexstyle = 0   # 0 = 0NNh, 1 = 0xNN - kjc: changed default
 dbstyle = 1    # 0 = hex, 1 = dec
 
 code = {}       # key=(even addresses),  value=Instruction(s)
@@ -90,6 +91,18 @@ def hexc(nr):            #custom hex()
             t = '0' + t
         return t
 
+## kjc: custom hex v2
+def hexc2(nr):
+    if (hexstyle):
+        if (nr < 10):
+            return str(int(nr))
+        return '0x%02X' % int(nr)    # C syle
+    else:
+        t = '%Xh' % int(nr)
+        if (t[0] in string.ascii_letters):
+            t = '0' + t
+        return t
+
 ###################################################################
 def makelabel(nr):
     s = '%X' % int(nr)
@@ -108,6 +121,8 @@ def read_object_code(objectfile):
     global code, conf_regs
     exta = '0000'                          # prefix for extended addr
     for x in objectfile.readlines():
+        if debug:
+            print(x[:-1])
         if x[0] == ':':                    # Intel form        :CCAAAATTllhhllhh....rr
             x = x.strip()
             nb = int(x[1:3], 16)           # number of bytes this record
@@ -378,7 +393,7 @@ def assembly_line(addr):
             s.append(str((w & 0x30) >> 4) + ',' + hexc(((w & 0xF) << 8) | (w2 & 0xFF)))
             code[addr].bytes = 4
         elif (c == 'X'):            # insert the hex version of the whole word
-            s.append('DE ' + hexc(w) + '\t\t;WARNING: unknown instruction!')
+            s.append('DW ' + hexc(w) + '\t\t;WARNING: unknown instruction!')
         else:                    # insert this source-code character
             if (c == ' '):
                 while (len(s) < 7):
@@ -398,7 +413,8 @@ def eep_cfg_txt():                    # generate text for the eeprom and configu
     txt = ''
     for x in configuration:
         if listing:
-            txt += '%06X %04X\n' % (int(x), int(configuration[x]))
+            txt += '%06X %04X' % (int(x), int(configuration[x]))
+            txt += '\tCONFIG %s = %s\n' % ((conf_regs[x] if (x in conf_regs) else hexc(x)), hexc(configuration[x]))
         else:
             txt += '\t\tCONFIG %s = %s\n' % ((conf_regs[x] if (x in conf_regs) else hexc(x)), hexc(configuration[x]))
     if eeprom:
@@ -407,7 +423,7 @@ def eep_cfg_txt():                    # generate text for the eeprom and configu
             if listing:
                 txt += '%06X %04X\n' % (x, eeprom[x].bin)
             else:
-                txt += '\t\tORG %s\n\t\tDE %s\n' % (hexc(x), hexc(eeprom[x].bin))
+                txt += '\t\tORG %s\n\t\tdw %s\n' % (hexc(x), hexc(eeprom[x].bin))
     if txt:
         txt += '\n\n'
     return txt
@@ -590,6 +606,32 @@ def read_table_defs(file):
     #   print('"%s" %s' % (t.comment, len(t.data)))
 
 ###############################################################
+
+def read_jumptable_defs(file):
+
+    for s in file.readlines():
+        if (len(s) <= 1):
+            continue
+        if (s[0] == ';'):
+            #print("JumpTable comment found = %s" % s[1:])
+            continue
+        start, stop = s.split(',')
+        start_addr = int(start, 16)
+        stop_addr = int(stop, 16)
+        #print('jumptable: ', start, stop)
+        if (start_addr <= stop_addr):
+            while (start_addr <= stop_addr):
+                sti = StackItem()
+                sti.bank = 0
+                sti.addr = start_addr
+                stack.append(sti)
+                start_addr += 2
+        else:
+            print("Bad syntax, jumptable file: %s > %s" % (start, stop))
+
+    file.close()
+
+###############################################################
 def search_table_def_matched():
 
     global code, covered, table_defs
@@ -652,12 +694,13 @@ def search_table_def_matched():
 if __name__ == '__main__':
 
     table_defs_file = ''
+    jumptable_defs_file = ''
     use_interrupt1 = False
     use_interrupt2 = False
 
     try:
 
-        opts, args = getopt.getopt(sys.argv[1:], "hlo:d:", ["int1", "int2"])
+        opts, args = getopt.getopt(sys.argv[1:], "hlo:d:j:", ["int1", "int2"])
 
         input_file = args[0]
         output_file = input_file[:-4] + '_.asm'
@@ -671,6 +714,8 @@ if __name__ == '__main__':
                 hexstyle = 1    # 0xNNN
             elif (o == '-d'):
                 table_defs_file = v
+            elif (o == '-j'):
+                jumptable_defs_file = v
             elif (o == '--int1'):
                 use_interrupt1 = True
             elif (o == '--int2'):
@@ -685,6 +730,14 @@ if __name__ == '__main__':
             read_table_defs(open(table_defs_file, "r"))
         except OSError as e:
             print(f"Unable to open {table_defs_file}: {e}", file=sys.stderr)
+            sys.exit(2)
+
+    if (jumptable_defs_file != ''):
+        print('Reading jump-table table defs file...', os.path.abspath(jumptable_defs_file))
+        try:
+            read_jumptable_defs(open(jumptable_defs_file, "r"))
+        except OSError as e:
+            print(f"Unable to open {jumptable_defs_file}: {e}", file=sys.stderr)
             sys.exit(2)
 
     print('Building tables...')
@@ -766,16 +819,15 @@ if __name__ == '__main__':
         if (len(cod.comment) < 3):              # remove empty comments
             cod.comment = ''
         if ((wadr - 2) not in code):            # must put an ORG if not contiguous
-            cod.prefixline += '\t\tORG %s \n' % (hexc(wadr))
+            cod.prefixline += '\n\t\tORG %s \n' % (hexc(wadr))
+            #print(' ORG', "%s" % (hexc(wadr)))
 
         if (wadr not in covered):
-            cod.asm = '%s%s,%s' % ('db'.ljust(5, ' '), cod.bin & 0xff, cod.bin >> 8)
+            cod.asm = '%s%s,%s' % ('db'.ljust(5, ' '), hexc2(cod.bin & 0xff), hexc2((cod.bin >> 8) & 0xff))
             cod.comment = ';%s%s' % (ascii_char(cod.bin & 0xff), ascii_char(cod.bin >> 8))
             cod.bytes = 2
             next_wadr = wadr + 2
             while (cod.bytes < 16): # upto 16 bytes in one db
-                if (listing):
-                    break # listing format
                 if (next_wadr not in code):
                     break # break if there is no code
                 if (next_wadr in covered):
@@ -783,7 +835,7 @@ if __name__ == '__main__':
                 if ((len(code[next_wadr].calls) > 0) or code[next_wadr].label.strip() or code[next_wadr].prefixline):
                     break # break if db has label or comment or prefixline
                 next_bin = code[next_wadr].bin
-                cod.asm += ',%s,%s' % (next_bin & 0xff, next_bin >> 8)
+                cod.asm += ',%s,%s' % (hexc2(next_bin & 0xff), hexc2((next_bin >> 8) & 0xff))
                 cod.comment += '%s%s' % (ascii_char(next_bin & 0xff), ascii_char(next_bin >> 8))
                 cod.bytes += 2
                 next_wadr += 2
@@ -804,17 +856,18 @@ if __name__ == '__main__':
 
     skip_till_addr = 0;
     for addr in tempk:
-        if (not listing and (addr < skip_till_addr)):
+        if (addr < skip_till_addr):
             continue
         if (listing):
+            otf.write(code[addr].prefixline) # kjc: added prefixline
             otf.write('%05X %04X\t' % (int(addr), int(code[addr].bin)))
         else:
             otf.write(code[addr].prefixline)
 
         comment_spacing = ''
         if (code[addr].comment):
-            # prefix with tabs
-            comment_spacing = ('\t' * int(((72 if (code[addr].asm.startswith('db')) else 32) + 3 - (2 + len(code[addr].asm.expandtabs(tabsize)))) / tabsize))
+            # use spaces before comment
+            comment_spacing = (' ' * int(((72 if (code[addr].asm.startswith('db')) else 32) + 3 - (2 + len(code[addr].asm.expandtabs(tabsize)))) / 1))
         else:
             comment = ''
 
