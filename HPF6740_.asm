@@ -4,109 +4,131 @@ PROCESSOR 18F47Q10; modify this
 
 #include <xc.inc>
 
+		CONFIG CONFIG1L = 8Ch
+		CONFIG CONFIG1H = 0D7h
+		CONFIG CONFIG2L = 3Dh
+		CONFIG CONFIG2H = 0E7h
+		CONFIG CONFIG3L = 9Fh
+		CONFIG CONFIG3H = 0FFh
+		CONFIG CONFIG4L = 0FFh
+		CONFIG CONFIG4H = 0CFh
+		CONFIG CONFIG5L = 0FFh
+		CONFIG CONFIG5H = 0FFh
+		CONFIG CONFIG6L = 0FFh
+		CONFIG CONFIG6H = 0FFh
+
+
 PSECT RESETVEC, abs
 RESETVEC:
 
 
-		ORG 10h 
+		ORG 0 
+          rcall  p_____A
+          goto   p___B00
+
+		ORG 8 
+          db   7h,0D1h                                                             ;..
+p_____A:  movlb  0Eh                       ; entry from: 0
+          movlw  7
+          movwf  0DEh,b                    ; OSCFRQ
           movlw  8
-          movwf  PORTB,a
-          movlw  4
-          movwf  PORTC,a
-          movlw  40h
-          movwf  PORTD,a
-          movlw  0FFh
-          movwf  PORTE,a
-          movlw  0
-          movwf  SSP1BUF,a
-          movlw  47h
-          movwf  TRISB,a
-          movlw  0FAh
-          movwf  TRISC,a
-          movlw  0A9h
-          movwf  TRISD,a
-          movlw  0FFh
-          movwf  TRISE,a
-          movlw  0Eh
           movwf  PORTA,a
+          movlw  4
+          movwf  PORTB,a
+          movlw  40h
+          movwf  PORTC,a
+          movlw  0FFh
+          movwf  PORTD,a
+          movlw  0
+          movwf  PORTE,a
+          movlw  47h
+          movwf  TRISA,a
+          movlw  0FAh
+          movwf  TRISB,a
+          movlw  0A9h
+          movwf  TRISC,a
+          movlw  0FFh
+          movwf  TRISD,a
+          movlw  0Eh
+          movwf  TRISE,a
           movlb  0Fh
-          clrf   11h,b                     ; SLRCONB
-          clrf   19h,b                     ; SLRCONC
-          clrf   21h,b                     ; ANSELD
-          clrf   26h,b                     ; SLRCONE
-          clrf   2Eh,b                     ; DAC1CON0
+          clrf   11h,b                     ; ANSELA
+          clrf   19h,b                     ; ANSELB
+          clrf   21h,b                     ; ANSELC
+          clrf   26h,b                     ; ANSELD
+          clrf   2Eh,b                     ; ANSELE
           movlb  0Fh
           movlw  0F0h
-          movwf  0Eh,b                     ; IOCBN
+          movwf  0Eh,b                     ; SLRCONA
           movlw  5
-          movwf  16h,b                     ; IOCCN
+          movwf  16h,b                     ; SLRCONB
           movlw  4Ch
-          movwf  1Eh,b                     ; SLRCOND
+          movwf  1Eh,b                     ; SLRCONC
           movlw  0FFh
-          movwf  23h,b                     ; IOCEN
+          movwf  23h,b                     ; SLRCOND
           movlw  1
-          movwf  2Bh,b                     ; HLVDCON1
+          movwf  2Bh,b                     ; SLRCONE
           movlb  0Fh
           movlw  7
-          movwf  10h,b                     ; INLVLB
+          movwf  10h,b                     ; WPUA
           movlw  0FAh
-          movwf  18h,b                     ; INLVLC
+          movwf  18h,b                     ; WPUB
           movlw  0A0h
-          movwf  20h,b                     ; WPUD
+          movwf  20h,b                     ; WPUC
           movlw  0
-          movwf  25h,b                     ; INLVLE
+          movwf  25h,b                     ; WPUD
           movlw  0
-          movwf  2Dh,b                     ; ZCDCON
+          movwf  2Dh,b                     ; WPUE
           movlb  0Fh
           movlw  40h
-          movwf  0Fh,b                     ; IOCBP
+          movwf  0Fh,b                     ; ODCONA
           movlw  8
-          movwf  1Fh,b                     ; ODCOND
+          movwf  1Fh,b                     ; ODCONC
           movlb  0Fh
           movlw  0FCh
-          movwf  0Dh,b                     ; IOCBF
+          movwf  0Dh,b                     ; INLVLA
           movlw  19h
-          movwf  15h,b                     ; IOCCF
+          movwf  15h,b                     ; INLVLB
           movlw  0F9h
-          movwf  2Ah,b                     ; HLVDCON0
+          movwf  2Ah,b                     ; INLVLE
           movlb  0Eh
           movlw  55h
-          movwf  0A0h,b                    ; T1CKIPPS
+          movwf  0A0h,b                    ; PPSLOCK
           movlw  0AAh
-          movwf  0A0h,b                    ; T1CKIPPS
-          bcf    0A0h,0,b                  ; T1CKIPPS
+          movwf  0A0h,b                    ; PPSLOCK
+          bcf    0A0h,0,b                  ; PPSLOCK
           movlb  0Eh
           movlw  17h
-          movwf  0B5h,b                    ; IPR0
+          movwf  0B5h,b                    ; RXPPS
           movlb  0Eh
           movlw  9
-          movwf  0FDh,b                    ; RD3PPS
+          movwf  0FDh,b                    ; RC6PPS
           movlb  0Eh
           movlw  55h
-          movwf  0A0h,b                    ; T1CKIPPS
+          movwf  0A0h,b                    ; PPSLOCK
           movlw  0AAh
-          movwf  0A0h,b                    ; T1CKIPPS
-          bsf    0A0h,0,b                  ; T1CKIPPS
+          movwf  0A0h,b                    ; PPSLOCK
+          bsf    0A0h,0,b                  ; PPSLOCK
           movlb  0Eh
           movlw  0FFh
-          movwf  0E3h,b                    ; RA1PPS
-          movwf  0E4h,b                    ; RA2PPS
-          movwf  0E6h,b                    ; RA4PPS
+          movwf  0E3h,b                    ; PMD2
+          movwf  0E4h,b                    ; PMD3
+          movwf  0E6h,b                    ; PMD5
           movlw  7Bh
-          movwf  0E1h,b                    ; PMD5
+          movwf  0E1h,b                    ; PMD0
           movlw  0FAh
-          movwf  0E2h,b                    ; RA0PPS
+          movwf  0E2h,b                    ; PMD1
           movlw  0BFh
-          movwf  0E5h,b                    ; RA3PPS
-          clrf   RCSTA1,a
+          movwf  0E5h,b                    ; PMD4
+          clrf   SP1BRGH,a
           movlw  9Bh
-          movwf  SPBRGH1,a
+          movwf  SP1BRGL,a
           movlw  8
-          movwf  PWM4DCL,a
+          movwf  BAUD1CON,a
           movlw  20h
-          movwf  BAUDCTL1,a
+          movwf  TX1STA,a
           movlw  90h
-          movwf  TXSTA1,a
+          movwf  RC1STA,a
           lfsr   0,0
 p____D8:  clrf   POSTINC0,a                ; entry from: 0E0h
           movlw  8
@@ -129,7 +151,9 @@ p____D8:  clrf   POSTINC0,a                ; entry from: 0E0h
           bra    p___180
 
 		ORG 150h 
-          db   0A0h,0EFh,22h,0F0h,96h,0EFh,22h,0F0h                                ;.."...".
+          db   0A0h,0EFh,22h,0F0h                                                  ;..".
+
+p___154:  goto   p__452C                   ; entry from: 400h,12A0h,4808h,2C4Ah
 
 		ORG 180h 
 p___180:  movlw  37h                       ; entry from: 102h
@@ -148,31 +172,31 @@ p___180:  movlw  37h                       ; entry from: 102h
           movwf  4Eh,a
           bsf    21h,6,a
           movlw  0FFh
-          movwf  T2CON,a
+          movwf  T2PR,a
           movlw  80h
-          movwf  T2CLKCON,a
-          movlw  1
-          movwf  T2RST,a
-          movlw  10h
           movwf  T2HLT,a
+          movlw  1
+          movwf  T2CLKCON,a
+          movlw  10h
+          movwf  T2CON,a
           movlw  54h
-          movwf  PCON1,a
-          movlw  80h
           movwf  T0CON1,a
+          movlw  80h
+          movwf  T0CON0,a
           call   p___336
-          movf   TXREG1,W,a
-          movf   TXREG1,W,a
+          movf   RC1REG,W,a
+          movf   RC1REG,W,a
           call   p__3B76
           call   p__1072
           movlb  0Eh
-          bsf    0C6h,1,b                  ; PIR1
+          bsf    0C6h,1,b                  ; PIE4
           movlw  0C0h
           movwf  INTCON,a
           call   p__277A
           btfss  2Ah,1,a
           call   p__30FE
           movlw  80h
-          movwf  NVMCON2,a
+          movwf  NVMCON1,a
           return 
 
 		ORG 200h 
@@ -191,7 +215,8 @@ p___180:  movlw  37h                       ; entry from: 102h
           db   5Ah,6Eh,11h,0h,8Bh,84h,0DFh,0A0h,8Bh,90h,28h,0Eh,4Ch,6Eh,22h,0B2h   ;Zn........(.Ln".
           db   22h,92h,0D9h,2Ah,0Fh,0Eh,0D9h,18h,0D8h,0A4h,11h,0h,0D9h,6Ah,21h,8Ch ;"..*.........j!.
           db   31h,82h,11h,0h                                                      ;1...
-p___2E4:  movwf  TBLPTRL,a                 ; tblptrl  entry from: 3110h
+
+p___2E4:  movwf  TBLPTRL,a                 ; entry from: 2F4Ah,3F88h,2A46h,4BF0h,4B4Ch,3B54h,3110h
           movlw  4
           movwf  FSR0H,a
           movlw  0Eh
@@ -199,7 +224,7 @@ p___2E4:  movwf  TBLPTRL,a                 ; tblptrl  entry from: 3110h
           movlw  0FFh
           movwf  POSTDEC0,a
           movlw  80h
-          movwf  NVMCON2,a
+          movwf  NVMCON1,a
           movlw  0Eh
           movwf  6,a
 p___2FA:  tblrd*+                          ; entry from: 30Eh
@@ -218,9 +243,14 @@ p___308:  movf   TABLAT,W,a                ; entry from: 302h
           clrf   4Fh,a
           return 
           db   5h,0Eh,1h,6Eh,5h,0D8h,1h,2Eh,0FDh,0D7h,12h,0h,4h,0Eh,1h,0D0h        ;...n............
-          db   9h,0Eh,5h,6Eh,9Bh,0ECh,1h,0F0h,5h,2Eh,0FCh,0D7h,12h,0h              ;...n..........
+p___328:  movlw  9                         ; entry from: 2C54h
+          movwf  5,a
+p___32C:  call   p___336                   ; entry from: 332h
+          decfsz 5,a
+          bra    p___32C
+          return 
 
-p___336:  movlw  6Dh                       ; entry from: 1BAh,1084h,1088h
+p___336:  movlw  6Dh                       ; entry from: 1084h,1088h,3F8Ch,3F94h,3FB2h,3F7Ah,2C5Ch,2C64h,32Ch,1BAh
           movwf  32h,a
           clrf   33h,a
 
@@ -231,62 +261,135 @@ p___33C:  decfsz 33h,a                     ; entry from: 33Eh,342h
           return 
 
 		ORG 400h 
-          db   0AAh,0ECh,0h,0F0h,0h,0Eh,72h,0D8h,0F8h,6Ah,43h,0Eh,6Fh,0D8h,4h,0Eh  ;......r..jC.o...
-          db   0FAh,6Eh,67h,0D8h,7h,0Bh,2h,0Dh,0F3h,50h,0F9h,26h,7h,0D0h,0Fh,0D0h  ;.ng......P.&....
-          db   19h,0D0h,30h,0D0h,51h,0D0h,55h,0D0h,47h,0D0h,11h,0D0h,6h,0Eh,0EAh,6Eh;..0.Q.U.G......n
-          db   0E9h,6Ah,57h,0D8h,0h,6Eh,55h,0D8h,1h,6Eh,0h,0Eh,0E7h,0D7h,8h,0Eh    ;.jW..nU..n......
-          db   2h,6Eh,4Fh,0D8h,0EEh,6Eh,2h,2Eh,0FCh,0D7h,1h,0Eh,0DFh,0D7h,0A8h,0ECh;.nO..n..........
-          db   0h,0F0h,0DDh,0D7h,27h,0D8h,94h,0Eh,81h,6Eh,0h,0h,55h,0Eh,82h,6Eh    ;....'....n..U..n
-          db   0AAh,0Eh,82h,6Eh,81h,82h,0Ah,0h,0EEh,50h,0F5h,6Eh,0Fh,0h,6h,2Eh     ;...n.....P.n....
-          db   0FBh,0D7h,81h,98h,0h,0h,55h,0Eh,82h,6Eh,0AAh,0Eh,82h,6Eh,81h,82h    ;......U..n...n..
-          db   2h,0Eh,1h,0D0h,3h,0Eh,32h,0D8h,0Dh,0D8h,80h,0Eh,81h,6Eh,9h,0h       ;......2......n..
-          db   0F5h,50h,0EEh,18h,0D8h,0A4h,4h,0D0h,6h,2Eh,0F9h,0D7h,0Fh,0Eh,0B6h,0D7h;.P..............
-          db   0F0h,0Eh,0B4h,0D7h,6h,0Eh,0EAh,6Eh,0E9h,6Ah,1h,50h,0F7h,6Eh,0h,50h  ;.......n.j.P.n.P
-          db   0F6h,6Eh,40h,0Eh,6h,6Eh,12h,0h,81h,94h,6h,0Eh,17h,0D8h,93h,0ECh     ;.n@..n..........
-          db   2h,0F0h,0FFh,0h,0h,0EFh,0h,0F0h,4h,0Eh,10h,0D8h,0Ah,0D8h,12h,0D8h   ;................
-          db   9Dh,0D7h,5h,0Eh,0Bh,0D8h,5h,0D8h,7Eh,6Eh,3h,0D8h,12h,0D8h,5h,0Eh    ;........~n......
-          db   95h,0D7h,0Eh,1h,0CDh,0ABh,0FEh,0D7h,99h,50h,12h,0h,9Ah,6Eh,9Eh,0A2h ;.........P...n..
-          db   0FEh,0D7h,12h,0h,7Eh,6Eh,0h,0Eh,81h,6Eh,81h,80h,80h,50h,7Eh,2Ah     ;....~n...n...P~*
-          db   12h,0h,80h,6Eh,4h,0Eh,81h,6Eh,55h,0Eh,82h,6Eh,0AAh,0Eh,82h,6Eh      ;...n...nU..n...n
-          db   81h,82h,81h,0B2h,0FEh,0D7h,7Eh,2Ah,12h,0h,9h,0Eh,5h,6Eh,3h,0D8h     ;......~*.....n..
-          db   5h,2Eh,0FDh,0D7h,12h,0h,6Dh,0Eh,4h,6Eh,3h,6Ah,3h,2Eh,0FEh,0D7h      ;......m..n.j....
-          db   4h,2Eh,0FCh,0D7h,12h,0h                                             ;......
+p___400:  call   p___154                   ; entry from: 772h
+          movlw  0
+          rcall  p___4EC
+          clrf   TBLPTRU,a
+          movlw  43h
+p___40C:  rcall  p___4EC                   ; entry from: 43Ch
+          movlw  4
+          movwf  PCLATH,a
+          rcall  p___4E2
+          andlw  7
+          mullw  2
+          movf   PRODL,W,a
+          addwf  PCL,a
+          bra    p___42C
+          db   0Fh,0D0h,19h,0D0h,30h,0D0h,51h,0D0h,55h,0D0h,47h,0D0h,11h,0D0h      ;....0.Q.U.G...
+p___42C:  movlw  6                         ; entry from: 41Ch
+          movwf  FSR0H,a
+          clrf   FSR0L,a
+          rcall  p___4E2
+          movwf  0,a
+          rcall  p___4E2
+          movwf  1,a
+          movlw  0
+          bra    p___40C
+          db   8h,0Eh,2h,6Eh,4Fh,0D8h,0EEh,6Eh,2h,2Eh,0FCh,0D7h,1h,0Eh,0DFh,0D7h   ;...nO..n........
+          db   0A8h,0ECh,0h,0F0h,0DDh,0D7h,27h,0D8h,94h,0Eh,81h,6Eh,0h,0h,55h,0Eh  ;......'....n..U.
+          db   82h,6Eh,0AAh,0Eh,82h,6Eh,81h,82h,0Ah,0h,0EEh,50h,0F5h,6Eh,0Fh,0h    ;.n...n.....P.n..
+          db   6h,2Eh,0FBh,0D7h,81h,98h,0h,0h,55h,0Eh,82h,6Eh,0AAh,0Eh,82h,6Eh     ;........U..n...n
+          db   81h,82h,2h,0Eh,1h,0D0h,3h,0Eh,32h,0D8h,0Dh,0D8h,80h,0Eh,81h,6Eh     ;........2......n
+          db   9h,0h,0F5h,50h,0EEh,18h,0D8h,0A4h,4h,0D0h,6h,2Eh,0F9h,0D7h,0Fh,0Eh  ;...P............
+          db   0B6h,0D7h,0F0h,0Eh,0B4h,0D7h,6h,0Eh,0EAh,6Eh,0E9h,6Ah,1h,50h,0F7h,6Eh;.........n.j.P.n
+          db   0h,50h,0F6h,6Eh,40h,0Eh,6h,6Eh,12h,0h,81h,94h,6h,0Eh,17h,0D8h       ;.P.n@..n........
+          db   93h,0ECh,2h,0F0h,0FFh,0h,0h,0EFh,0h,0F0h,4h,0Eh,10h,0D8h,0Ah,0D8h   ;................
+          db   12h,0D8h,9Dh,0D7h,5h,0Eh,0Bh,0D8h,5h,0D8h,7Eh,6Eh,3h,0D8h,12h,0D8h  ;..........~n....
+          db   5h,0Eh,95h,0D7h                                                     ;....
+
+p___4E2:  movlb  0Eh                       ; entry from: 412h,432h,436h
+p___4E4:  btfss  0CDh,5,b                  ; PIR3 entry from: 4E6h
+          bra    p___4E4
+          movf   RC1REG,W,a
+          return 
+
+p___4EC:  movwf  TX1REG,a                  ; entry from: 406h,40Ch
+p___4EE:  btfss  TX1STA,1,a                ; entry from: 4F0h
+          bra    p___4EE
+          return 
+          db   7Eh,6Eh,0h,0Eh,81h,6Eh,81h,80h,80h,50h,7Eh,2Ah,12h,0h,80h,6Eh       ;~n...n...P~*...n
+          db   4h,0Eh,81h,6Eh,55h,0Eh,82h,6Eh,0AAh,0Eh,82h,6Eh,81h,82h,81h,0B2h    ;...nU..n...n....
+          db   0FEh,0D7h,7Eh,2Ah,12h,0h,9h,0Eh,5h,6Eh,3h,0D8h,5h,2Eh,0FDh,0D7h     ;..~*.....n......
+          db   12h,0h,6Dh,0Eh,4h,6Eh,3h,6Ah,3h,2Eh,0FEh,0D7h,4h,2Eh,0FCh,0D7h      ;..m..n.j........
+          db   12h,0h                                                              ;..
 
 		ORG 600h 
-          db   6h,0Eh,0FAh,6Eh,4Eh,44h,0F9h,26h,0h,0Ch,50h,0Ch,51h,0Ch,52h,0Ch     ;...nND.&..P.Q.R.
-          db   53h,0Ch,30h,0Ch,31h,0Ch,32h,0Ch,33h,0Ch,90h,0Ch,91h,0Ch,92h,0Ch     ;S.0.1.2.3.......
-          db   93h,0Ch,94h,0Ch,70h,0Ch,71h,0Ch,72h,0Ch,73h,0Ch,0A0h,0Ch,0A1h,0Ch   ;....p.q.r.s.....
-          db   0A2h,0Ch,0A3h,0Ch,0A4h,0Ch,60h,0Ch,61h,0Ch,62h,0Ch,63h,0Ch,40h,0Ch  ;......`.a.b.c.@.
-          db   41h,0Ch,42h,0Ch,43h,0Ch,10h,0Ch,11h,0Ch,12h,0Ch,13h,0Ch,14h,0Ch     ;A.B.C...........
-          db   6h,0Eh,0FAh,6Eh,13h,44h,0F9h,26h,5h,0Ch,0CFh,0Ch,91h,0Ch,83h,0Ch    ;...n.D.&........
-          db   4Bh,0Ch,23h,0Ch,21h,0Ch,8Fh,0Ch,1h,0Ch,3h,0Ch,0F9h,0Ch,35h,0Ch      ;K.#.!.........5.
-          db   0E1h,0Ch,0C1h,0Ch,31h,0Ch,0FFh,0Ch,2Bh,50h,0Dh,0Ah,0D8h,0A4h,5h,0D0h;....1...+P......
-          db   19h,0ECh,16h,0F0h,0BDh,8Eh,58h,0EFh,14h,0F0h,2Bh,50h,0Eh,0Ah,0D8h,0A4h;......X...+P....
-          db   57h,0EFh,14h,0F0h,50h,0ECh,3h,0F0h,25h,0ECh,16h,0F0h,58h,0EFh,14h,0F0h;W...P...%...X...
-          db   0AAh,0ECh,0h,0F0h,42h,0Eh,0E9h,0ECh,0Ah,0F0h,74h,0Eh,0E9h,0ECh,0Ah,0F0h;....B.....t.....
-          db   4Fh,0Eh,0E9h,0ECh,0Ah,0F0h,66h,0Eh,0E9h,0ECh,0Ah,0F0h,46h,0Eh,0E9h,0ECh;O.....f.....F...
-          db   0Ah,0F0h,8Ch,0ECh,1h,0F0h,8Ch,0ECh,1h,0F0h,12h,0h                   ;............
+p___600:  movlw  6                         ; entry from: 0C3Ch
+          movwf  PCLATH,a
+          rlncf  4Eh,W,a
+          addwf  PCL,a
+          retlw  0
+          db   50h,0Ch,51h,0Ch,52h,0Ch,53h,0Ch,30h,0Ch,31h,0Ch,32h,0Ch,33h,0Ch     ;P.Q.R.S.0.1.2.3.
+          db   90h,0Ch,91h,0Ch,92h,0Ch,93h,0Ch,94h,0Ch,70h,0Ch,71h,0Ch,72h,0Ch     ;..........p.q.r.
+          db   73h,0Ch,0A0h,0Ch,0A1h,0Ch,0A2h,0Ch,0A3h,0Ch,0A4h,0Ch,60h,0Ch,61h,0Ch;s...........`.a.
+          db   62h,0Ch,63h,0Ch,40h,0Ch,41h,0Ch,42h,0Ch,43h,0Ch,10h,0Ch,11h,0Ch     ;b.c.@.A.B.C.....
+          db   12h,0Ch,13h,0Ch,14h,0Ch                                             ;......
+
+p___650:  movlw  6                         ; entry from: 0E38h,0EA6h,0E0Eh
+          movwf  PCLATH,a
+          rlncf  13h,W,a
+          addwf  PCL,a
+          retlw  5
+          db   0CFh,0Ch,91h,0Ch,83h,0Ch,4Bh,0Ch,23h,0Ch,21h,0Ch,8Fh,0Ch,1h,0Ch     ;......K.#.!.....
+          db   3h,0Ch,0F9h,0Ch,35h,0Ch,0E1h,0Ch,0C1h,0Ch,31h,0Ch,0FFh,0Ch,2Bh,50h  ;....5.....1...+P
+          db   0Dh,0Ah,0D8h,0A4h,5h,0D0h,19h,0ECh,16h,0F0h,0BDh,8Eh,58h,0EFh,14h,0F0h;............X...
+          db   2Bh,50h,0Eh,0Ah,0D8h,0A4h,57h,0EFh,14h,0F0h,50h,0ECh,3h,0F0h,25h,0ECh;+P....W...P...%.
+          db   16h,0F0h,58h,0EFh,14h,0F0h,0AAh,0ECh,0h,0F0h,42h,0Eh,0E9h,0ECh,0Ah,0F0h;..X.......B.....
+          db   74h,0Eh,0E9h,0ECh,0Ah,0F0h,4Fh,0Eh,0E9h,0ECh,0Ah,0F0h,66h,0Eh,0E9h,0ECh;t.....O.....f...
+          db   0Ah,0F0h,46h,0Eh,0E9h,0ECh,0Ah,0F0h,8Ch,0ECh,1h,0F0h,8Ch,0ECh,1h,0F0h;..F.............
+          db   12h,0h                                                              ;..
 
 		ORG 700h 
-          db   7h,0Eh,0FAh,6Eh,4Eh,44h,0F9h,26h,0FFh,0Ch,6h,0Ch,5h,0Ch,4h,0Ch      ;...nND.&........
-          db   14h,0Ch,11h,0Ch,16h,0Ch,17h,0Ch,12h,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch  ;................
-          db   0FFh,0Ch,0FFh,0Ch,15h,0Ch,0FFh,0Ch,0h,0Ch,19h,0Ch,0Eh,0Ch,0Dh,0Ch   ;................
-          db   0Ch,0Ch,0Bh,0Ch,0Ah,0Ch,3h,0Ch,2h,0Ch,1h,0Ch,18h,0Ch,9h,0Ch         ;................
-          db   8h,0Ch,7h,0Ch,13h,0Ch,0FFh,0Ch,10h,0Ch,0FFh,0Ch,0FFh,0Ch,0Fh,0Ch    ;................
-          db   20h,0AEh,4h,0D0h,99h,50h,99h,50h,80h,0EFh,5h,0F0h,7h,0Eh,0FAh,6Eh   ; ....P.P.......n
-          db   99h,50h,0h,6Eh,15h,0Eh,0h,60h,0F5h,0D7h,0h,50h,4h,0Dh,0F3h,50h      ;.P.n...`...P...P
-          db   0F9h,26h,0h,0EFh,2h,0F0h,16h,0EFh,9h,0F0h,23h,0EFh,9h,0F0h,5Eh,0EFh ;.&........#...^.
-          db   9h,0F0h,86h,0EFh,9h,0F0h,80h,0EFh,0Ah,0F0h,96h,0EFh,0Ah,0F0h,44h,0EFh;..............D.
-          db   9h,0F0h,0h,0EFh,0Bh,0F0h,9h,0EFh,0Bh,0F0h,11h,0EFh,0Bh,0F0h,0h,0EFh ;................
-          db   0Ah,0F0h,45h,0EFh,0Ah,0F0h,0E9h,0EFh,17h,0F0h,31h,0EFh,18h,0F0h,3Ch,0EFh;..E.......1...<.
-          db   18h,0F0h,80h,0EFh,5h,0F0h,63h,0EFh,18h,0F0h,0B9h,0EFh,0Bh,0F0h,0C1h,0EFh;......c.........
-          db   0Bh,0F0h,58h,0EFh,18h,0F0h,0Fh,0Bh,2h,0Dh,7h,0Eh,0FAh,6Eh,0F3h,50h  ;..X..........n.P
-          db   0F9h,26h,5h,0Ch,0CFh,0Ch,91h,0Ch,83h,0Ch,4Bh,0Ch,23h,0Ch,21h,0Ch    ;.&........K.#.!.
-          db   8Fh,0Ch,1h,0Ch,3h,0Ch,9h,0Ch,61h,0Ch,35h,0Ch,0C1h,0Ch,31h,0Ch       ;........a.5...1.
-          db   39h,0Ch                                                             ;9.
+p___700:  movlw  7                         ; entry from: 0BBCh
+          movwf  PCLATH,a
+          rlncf  4Eh,W,a
+          addwf  PCL,a
+          retlw  0FFh
+          db   6h,0Ch,5h,0Ch,4h,0Ch,14h,0Ch,11h,0Ch,16h,0Ch,17h,0Ch,12h,0Ch        ;................
+          db   0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,15h,0Ch,0FFh,0Ch,0h,0Ch;................
+          db   19h,0Ch,0Eh,0Ch,0Dh,0Ch,0Ch,0Ch,0Bh,0Ch,0Ah,0Ch,3h,0Ch,2h,0Ch       ;................
+          db   1h,0Ch,18h,0Ch,9h,0Ch,8h,0Ch,7h,0Ch,13h,0Ch,0FFh,0Ch,10h,0Ch        ;................
+          db   0FFh,0Ch,0FFh,0Ch,0Fh,0Ch                                           ;......
+p___750:  btfss  20h,7,a                   ; entry from: 100Eh
+          bra    p___75C
+p___754:  movf   RC1REG,W,a                ; entry from: 768h
+          movf   RC1REG,W,a
+          goto   p___B00
+p___75C:  movlw  7                         ; entry from: 752h
+          movwf  PCLATH,a
+          movf   RC1REG,W,a
+          movwf  0,a
+          movlw  15h
+          cpfslt 0,a
+          bra    p___754
+          movf   0,W,a
+          mullw  4
+          movf   PRODL,W,a
+          addwf  PCL,a
+          goto   p___400
+          db   16h,0EFh,9h,0F0h,23h,0EFh,9h,0F0h,5Eh,0EFh,9h,0F0h,86h,0EFh,9h,0F0h ;....#...^.......
+          db   80h,0EFh,0Ah,0F0h,96h,0EFh,0Ah,0F0h,44h,0EFh,9h,0F0h,0h,0EFh,0Bh,0F0h;........D.......
+          db   9h,0EFh,0Bh,0F0h,11h,0EFh,0Bh,0F0h,0h,0EFh,0Ah,0F0h,45h,0EFh,0Ah,0F0h;............E...
+          db   0E9h,0EFh,17h,0F0h,31h,0EFh,18h,0F0h,3Ch,0EFh,18h,0F0h,80h,0EFh,5h,0F0h;....1...<.......
+          db   63h,0EFh,18h,0F0h,0B9h,0EFh,0Bh,0F0h,0C1h,0EFh,0Bh,0F0h,58h,0EFh,18h,0F0h;c...........X...
+p___7C6:  andlw  0Fh                       ; entry from: 4B56h
+          mullw  2
+          movlw  7
+          movwf  PCLATH,a
+          movf   PRODL,W,a
+          addwf  PCL,a
+          retlw  5
+          db   0CFh,0Ch,91h,0Ch,83h,0Ch,4Bh,0Ch,23h,0Ch,21h,0Ch,8Fh,0Ch,1h,0Ch     ;......K.#.!.....
+          db   3h,0Ch,9h,0Ch,61h,0Ch,35h,0Ch,0C1h,0Ch,31h,0Ch,39h,0Ch              ;....a.5...1.9.
 
 		ORG 800h 
-          db   8h,0Eh,0FAh,6Eh,0h,50h,4h,0Dh,0F3h,50h,0F9h,26h,0h,0EFh,0Ch,0F0h    ;...n.P...P.&....
+p___800:  movlw  8                         ; entry from: 0DE0h
+          movwf  PCLATH,a
+          movf   0,W,a
+          mullw  4
+          movf   PRODL,W,a
+          addwf  PCL,a
+          goto   p__1800
           db   0Ch,0EFh,0Ch,0F0h,23h,0EFh,0Ch,0F0h,42h,0EFh,0Ch,0F0h,0C9h,0EFh,0Eh,0F0h;....#...B.......
           db   34h,0EFh,0Fh,0F0h,4Ch,0EFh,0Fh,0F0h,86h,0EFh,0Fh,0F0h,87h,0EFh,0Fh,0F0h;4...L...........
           db   0C6h,0EFh,0Fh,0F0h,80h,0EFh,10h,0F0h,9Ah,0EFh,10h,0F0h,0ECh,0EFh,10h,0F0h;................
@@ -337,71 +440,464 @@ p___9EA:  movwf  POSTINC0,a                ; entry from: 9EEh
           db   0C1h,0EFh,11h,0F0h,0C3h,0EFh,11h,0F0h,0C8h,0EFh,11h,0F0h,0CAh,0EFh,11h,0F0h;................
           db   0CFh,0EFh,11h,0F0h,0D2h,0EFh,11h,0F0h,0D8h,0EFh,11h,0F0h,0Ah,0Eh,0FAh,6Eh;...............n
           db   8h,50h,7h,0Bh,2h,0Dh,0F3h,50h,0F9h,26h,1h,0Ch,2h,0Ch,4h,0Ch         ;.P.....P.&......
-          db   8h,0Ch,10h,0Ch,20h,0Ch,40h,0Ch,80h,0Ch,0F9h,50h,5Ah,44h,0F9h,26h    ;.... .@....PZD.&
-          db   0h,0Ch,0h,0Ch,0Ah,0Ch,0h,0Ch,14h,0Ch,19h,0Ch,1Eh,0Ch,23h,0Ch        ;..............#.
-          db   28h,0Ch,0h,0Ch,32h,0Ch,0h,0Ch,3Ch,0Ch,0h,0Ch,0h,0Ch,0h,0Ch          ;(...2...<.......
+          db   8h,0Ch,10h,0Ch,20h,0Ch,40h,0Ch,80h,0Ch                              ;.... .@...
+p___A9A:  movf   PCL,W,a                   ; entry from: 0B4Ch
+          rlncf  5Ah,W,a
+          addwf  PCL,a
+          retlw  0
+          db   0h,0Ch,0Ah,0Ch,0h,0Ch,14h,0Ch,19h,0Ch,1Eh,0Ch,23h,0Ch,28h,0Ch       ;............#.(.
+          db   0h,0Ch,32h,0Ch,0h,0Ch,3Ch,0Ch,0h,0Ch,0h,0Ch,0h,0Ch                  ;..2...<.......
+
 
 		ORG 0B00h 
-          db   0Eh,1h,0CCh,0ECh,12h,0F0h,0CAh,0BBh,7h,0D0h,43h,0B0h,0FAh,0D7h,2Ah,0BAh;..........C...*.
-          db   0F8h,0D7h,31h,0AEh,16h,0D9h,0F4h,0D7h,0CAh,9Bh,4Ah,50h,0D3h,6Eh,20h,0AEh;..1.......JP.n .
-          db   7h,0D0h,37h,2Eh,5h,0D0h,36h,2Eh,3h,0D0h,20h,9Eh,25h,0ECh,16h,0F0h   ;..7...6... .%...
-          db   21h,90h,0Ah,9Eh,23h,0B4h,8Eh,0D0h,54h,52h,0D8h,0B4h,2h,0D0h,54h,6h  ;!...#...TR....T.
-          db   83h,0D0h,31h,0A2h,24h,0D0h,31h,92h,59h,0A4h,14h,0D0h,4Dh,0ECh,5h,0F0h;..1.$.1.Y...M...
-          db   0h,0Ah,0D8h,0B4h,1Ch,0D0h,1h,6Eh,4h,0Eh,59h,0A2h,9h,0D0h,3h,0Eh     ;.......n..Y.....
-          db   59h,0A0h,6h,0D0h,2h,0Eh,59h,0AEh,3h,0D0h,1h,0Eh,59h,0BCh,0h,0Eh     ;Y.....Y.....Y...
-          db   1h,24h,1h,0D0h,0FFh,0Eh,55h,6Eh,59h,6Ah,56h,18h,0D8h,0B4h,7h,0D0h   ;.$....UnYjV.....
-          db   46h,0Eh,2Ah,0A6h,8Ch,0Eh,2Ch,6Eh,55h,50h,56h,6Eh,0D7h,0D0h,2Ch,52h  ;F.*...,nUPVn..,R
-          db   0D8h,0B4h,5h,0D0h,2Ch,2Eh,0D2h,0D0h,0h,0ECh,1Dh,0F0h,4Eh,6Eh,21h,90h;....,.......Nn!.
-          db   0Ah,9Eh,23h,0B4h,57h,0D0h,4Eh,0BEh,34h,0D0h,2Bh,50h,0FFh,0Ah,0D8h,0A4h;..#.W.N.4.+P....
-          db   20h,0D0h,31h,0ACh,3h,0D0h,4Eh,50h,0E9h,0ECh,0Ah,0F0h,80h,0ECh,3h,0F0h; .1...NP........
-          db   2Bh,6Eh,43h,0A0h,6h,0D0h,2Bh,50h,0FFh,0Ah,0D8h,0A4h,80h,0ECh,19h,0F0h;+nC...+P........
-          db   17h,0D2h,0F2h,0ECh,23h,0F0h,21h,0B8h,0B1h,0D0h,0Bh,0B4h,2Fh,0D0h,4Eh,50h;....#.!...../.NP
-          db   23h,0Ah,0D8h,0A4h,2Bh,0D0h,43h,86h,8h,0Eh,44h,6Eh,80h,0Eh,45h,6Eh   ;#...+.C...Dn..En
-          db   7h,0D2h,31h,0B8h,0A3h,0D0h,43h,0B0h,3h,0D2h,43h,0A6h,25h,0D0h,45h,2Eh;..1...C...C.%.E.
-          db   0FFh,0D1h,44h,2Eh,0FDh,0D1h,20h,84h,0E3h,0Eh,31h,16h,3Eh,0ECh,14h,0F0h;..D... ...1.>...
-          db   0F7h,0D1h,2Bh,50h,0FFh,0Ah,0D8h,0B4h,1Dh,0D0h,0E3h,0Eh,31h,16h,43h,0A0h;..+P........1.C.
-          db   6h,0D0h,22h,0BEh,0DFh,0EFh,1Fh,0F0h,44h,0ECh,14h,0F0h,10h,0D0h,43h,0A6h;..".....D.....C.
-          db   0Eh,0D0h,43h,96h,14h,0Eh,54h,6Eh,14h,0Eh,2h,0D0h,0h,0ECh,3h,0F0h    ;..C...Tn........
-          db   2Bh,6Eh,2Ah,0A4h,9Eh,0ECh,16h,0F0h,0Ah,8Eh,21h,80h,77h,0D0h,43h,96h ;+n*.......!.w.C.
-          db   0FFh,0Eh,2Bh,6Eh,43h,0B0h,0D4h,0D1h,24h,0A8h,5h,0D0h,35h,2Eh,6Eh,0D0h;..+nC...$...5.n.
-          db   24h,98h,30h,0Eh,83h,1Ah,23h,0A8h,69h,0D0h,23h,0A6h,49h,0D0h,24h,0A6h;$.0...#.i.#.I.$.
-          db   7h,0D0h,35h,2Eh,63h,0D0h,24h,96h,91h,50h,6h,0Bh,29h,6Eh,5Eh,0D0h    ;..5.c.$..P..)n^.
-          db   91h,50h,6h,0Bh,1h,6Eh,29h,18h,0h,6Eh,0D8h,0B4h,57h,0D0h,0D8h,90h    ;.P...n)..n..W...
-          db   0h,0A4h,0D8h,80h,41h,32h,40h,32h,3Fh,32h,3Eh,32h,28h,2Eh,0Dh,0D0h   ;....A2@2?2>2(...
-          db   3Eh,50h,3Ah,6Eh,3Fh,50h,3Bh,6Eh,40h,50h,3Ch,6Eh,41h,50h,3Dh,6Eh     ;>P:n?P;n@P<nAP=n
-          db   23h,80h,1Ch,0Eh,28h,6Eh,34h,0BEh,23h,98h,1h,50h,29h,6Eh,3Eh,0D0h    ;#...(n4.#..P)n>.
+p___B00:  movlb  0Eh                       ; entry from: 2,1002h,1006h,100Ch,758h,1660h,0B16h
+
+p___B02:  call   p__2598                   ; entry from: 0B0Ch,0B10h
+          btfsc  0CAh,5,b                  ; PIR0
+          bra    p___B18
+          btfsc  43h,0,a
+          bra    p___B02
+          btfsc  2Ah,5,a
+          bra    p___B02
+          btfss  31h,7,a
+          rcall  p___D42
+          bra    p___B00
+p___B18:  bcf    0CAh,5,b                  ; PIR0 entry from: 0B08h
+          movf   4Ah,W,a
+          movwf  TMR0L,a
+          btfss  20h,7,a
+          bra    p___B30
+          decfsz 37h,a
+          bra    p___B30
+          decfsz 36h,a
+          bra    p___B30
+          bcf    20h,7,a
+          call   p__2C4A
+
+p___B30:  bcf    21h,0,a                   ; entry from: 0B20h,0B24h,0B28h
+          bcf    0Ah,7,a
+          btfsc  23h,2,a
+          bra    p___C54
+          movf   54h,a
+          btfsc  STATUS,2,a
+          bra    p___B42
+          decf   54h,a
+          bra    p___C48
+p___B42:  btfss  31h,1,a                   ; entry from: 0B3Ch
+          bra    p___B8E
+          bcf    31h,1,a
+          btfss  59h,2,a
+          bra    p___B74
+          call   p___A9A
+          xorlw  0
+          btfsc  STATUS,2,a
+          bra    p___B8E
+          movwf  1,a
+          movlw  4
+          btfss  59h,1,a
+          bra    p___B70
+          movlw  3
+          btfss  59h,0,a
+          bra    p___B70
+          movlw  2
+          btfss  59h,7,a
+          bra    p___B70
+          movlw  1
+          btfsc  59h,6,a
+          movlw  0
+
+p___B70:  addwf  1,W,a                     ; entry from: 0B5Ch,0B62h,0B68h
+          bra    p___B76
+p___B74:  movlw  0FFh                      ; entry from: 0B4Ah
+p___B76:  movwf  55h,a                     ; entry from: 0B72h
+          clrf   59h,a
+          xorwf  56h,W,a
+          btfsc  STATUS,2,a
+          bra    p___B8E
+          movlw  46h
+          btfss  2Ah,3,a
+          movlw  8Ch
+          movwf  2Ch,a
+          movf   55h,W,a
+          movwf  56h,a
+          bra    p___D3C
+
+p___B8E:  movf   2Ch,a                     ; entry from: 0B44h,0B7Eh,0B54h
+          btfsc  STATUS,2,a
+          bra    p___B9E
+          decfsz 2Ch,a
+          bra    p___D3C
+          call   p__3A00
+          movwf  4Eh,a
+p___B9E:  bcf    21h,0,a                   ; entry from: 0B92h
+          bcf    0Ah,7,a
+          btfsc  23h,2,a
+          bra    p___C54
+          btfsc  4Eh,7,a
+          bra    p___C12
+          movf   2Bh,W,a
+          xorlw  0FFh
+          btfss  STATUS,2,a
+          bra    p___BF2
+          btfss  31h,6,a
+          bra    p___BBC
+          movf   4Eh,W,a
+          call   p__15D2
+p___BBC:  call   p___700                   ; entry from: 0BB4h
+          movwf  2Bh,a
+          btfss  43h,0,a
+          bra    p___BD2
+          movf   2Bh,W,a
+          xorlw  0FFh
+          btfss  STATUS,2,a
+          call   p__3300
+          bra    p__1000
+p___BD2:  call   p__47E4                   ; entry from: 0BC4h
+          btfsc  21h,4,a
+          bra    p___D3C
+          btfsc  0Bh,2,a
+          bra    p___C3C
+          movf   4Eh,W,a
+          xorlw  23h
+          btfss  STATUS,2,a
+          bra    p___C3C
+          bsf    43h,3,a
+          movlw  8
+          movwf  44h,a
+          movlw  80h
+          movwf  45h,a
+          bra    p__1000
+p___BF2:  btfsc  31h,4,a                   ; entry from: 0BB0h
+          bra    p___D3C
+          btfsc  43h,0,a
+          bra    p__1000
+          btfss  43h,3,a
+          bra    p___C48
+          decfsz 45h,a
+          bra    p__1000
+          decfsz 44h,a
+          bra    p__1000
+          bsf    20h,2,a
+          movlw  0E3h
+          andwf  31h,a
+          call   p__287C
+          bra    p__1000
+p___C12:  movf   2Bh,W,a                   ; entry from: 0BA8h
+          xorlw  0FFh
+          btfsc  STATUS,2,a
+          bra    p___C54
+          movlw  0E3h
+          andwf  31h,a
+          btfss  43h,0,a
+          bra    p___C2E
+          btfsc  22h,7,a
+          goto   p__3FBE
+          call   p__2888
+          bra    p___C4E
+p___C2E:  btfss  43h,3,a                   ; entry from: 0C20h
+          bra    p___C4E
+          bcf    43h,3,a
+          movlw  14h
+          movwf  54h,a
+          movlw  14h
+          bra    p___C40
+
+p___C3C:  call   p___600                   ; entry from: 0BDCh,0BE4h
+p___C40:  movwf  2Bh,a                     ; entry from: 0C3Ah
+          btfss  2Ah,2,a
+          call   p__2D3C
+
+p___C48:  bsf    0Ah,7,a                   ; entry from: 0BFCh,0B40h
+          bsf    21h,0,a
+          bra    p___D3C
+
+p___C4E:  bcf    43h,3,a                   ; entry from: 0C30h,0C2Ch
+          movlw  0FFh
+          movwf  2Bh,a
+
+p___C54:  btfsc  43h,0,a                   ; entry from: 0B36h,0BA4h,0C18h
+          bra    p__1000
+          btfss  24h,4,a
+          bra    p___C66
+          decfsz 35h,a
+          bra    p___D3C
+          bcf    24h,4,a
+          movlw  30h
+          xorwf  LATA,a
+p___C66:  btfss  23h,4,a                   ; entry from: 0C5Ah
+          bra    p___D3C
+          btfss  23h,3,a
+          bra    p___D00
+          btfss  24h,3,a
+          bra    p___C80
+          decfsz 35h,a
+          bra    p___D3C
+          bcf    24h,3,a
+          movf   PORTE,W,a
+          andlw  6
+          movwf  29h,a
+          bra    p___D3C
+p___C80:  movf   PORTE,W,a                 ; entry from: 0C70h
+          andlw  6
+          movwf  1,a
+          xorwf  29h,W,a
+          movwf  0,a
+          btfsc  STATUS,2,a
+          bra    p___D3C
+          bcf    STATUS,0,a
+          btfss  0,2,a
+          bsf    STATUS,0,a
+          rrcf   41h,a
+          rrcf   40h,a
+          rrcf   3Fh,a
+          rrcf   3Eh,a
+          decfsz 28h,a
+          bra    p___CBA
+          movf   3Eh,W,a
+          movwf  3Ah,a
+          movf   3Fh,W,a
+          movwf  3Bh,a
+          movf   40h,W,a
+          movwf  3Ch,a
+          movf   41h,W,a
+          movwf  3Dh,a
+          bsf    23h,0,a
+          movlw  1Ch
+          movwf  28h,a
+          btfsc  34h,7,a
+          bcf    23h,4,a
+p___CBA:  movf   1,W,a                     ; entry from: 0C9Eh
+          movwf  29h,a
+          bra    p___D3C
 
 		ORG 0D00h 
-          db   42h,2Eh,1Ch,0D0h,3h,0Eh,42h,6Eh,3Eh,32h,3Fh,32h,40h,32h,41h,32h     ;B.....Bn>2?2@2A2
-          db   0D8h,0B0h,3h,0D0h,10h,0Eh,83h,1Ah,2h,0D0h,20h,0Eh,83h,1Ah,28h,2Eh   ;.......... ...(.
-          db   0Dh,0D0h,23h,0A0h,23h,98h,3Ah,50h,3Eh,6Eh,3Bh,50h,3Fh,6Eh,3Ch,50h   ;..#.#.:P>n;P?n<P
-          db   40h,6Eh,3Dh,50h,41h,6Eh,23h,90h,1Ch,0Eh,28h,6Eh,0A1h,0ECh,6h,0F0h   ;@n=PAn#...(n....
-          db   52h,0D0h,24h,0B0h,8h,0D0h,0Eh,50h,0D8h,0A4h,5h,0D0h,0Fh,50h,73h,0Ah ;R.$....P.....Ps.
-          db   0D8h,0B4h,78h,0ECh,1Fh,0F0h,2Ah,0A4h,0BBh,0ECh,16h,0F0h,0Eh,50h,0h,6Eh;..x...*......P.n
-          db   18h,6Eh,0Fh,50h,19h,6Eh,13h,0Eh,0Eh,64h,2h,0D0h,4h,0Eh,0h,5Eh       ;.n.P.n...d.....^
-          db   0D8h,90h,0Fh,34h,0F6h,6Eh,0h,34h,57h,0Fh,0F7h,6Eh,9h,0h,0F5h,50h    ;...4.n.4W..n...P
-          db   8h,6Eh,8h,0h,0F5h,50h,7h,6Eh,11h,50h,12h,6Eh,10h,50h,11h,6Eh        ;.n...P.n.P.n.P.n
-          db   10h,6Ah,0Eh,50h,18h,6Eh,0Fh,50h,19h,6Eh,0FFh,0Ah,0D8h,0A4h,8h,0D0h  ;.j.P.n.P.n......
-          db   0Eh,50h,0Fh,0Bh,0Fh,0Ah,0D8h,0A4h,3h,0D0h,10h,0Eh,0Eh,16h,4h,0D0h   ;.P..............
-          db   0Fh,2Ah,0D8h,0B4h,0Eh,2Ah,1h,0D0h,0Fh,2Ah,31h,0B8h,2h,0D0h,21h,0B0h ;.*...*...*1...!.
-          db   0Ah,8Eh,7h,50h,0Fh,0Bh,0h,6Eh,20h,0A2h,4h,0D0h,2h,0Eh,0h,6Eh        ;...P...n ......n
-          db   20h,80h,5h,0D0h,20h,90h,0h,50h,2h,0Ah,0D8h,0A4h,20h,98h,20h,92h     ; ... ..P.... . .
-          db   0h,0ECh,4h,0F0h,12h,0h,20h,0A4h,0Bh,0D1h,20h,0A6h,9h,0D1h,20h,96h   ;...... ... ... .
-          db   22h,80h,9h,0ECh,8h,0F0h,20h,0Eh,0E1h,6Eh,16h,6Ah,10h,0Eh,93h,0ECh   ;"..... ..n.j....
-          db   0Bh,0F0h,0h,0Ah,0D8h,0A4h,6h,0D0h,0h,0Eh,93h,0ECh,0Bh,0F0h,28h,0ECh ;..............(.
-          db   3h,0F0h,0E7h,6Eh,25h,0BAh,0E7h,90h,0E1h,2Ah,16h,2Ah,10h,0Eh,93h,0ECh;...n%....*.*....
-          db   0Bh,0F0h,5h,6Eh,0h,0Ah,0D8h,0B4h,4h,0D0h,5h,50h,4h,0Ah,0D8h,0A4h    ;...n.......P....
-          db   6h,0D0h,0h,0Eh,93h,0ECh,0Bh,0F0h,28h,0ECh,3h,0F0h,0E7h,6Eh,85h,0B2h ;........(....n..
-          db   0E7h,90h,0E1h,2Ah,16h,2Ah,0h,0Eh,93h,0ECh,0Bh,0F0h,5h,6Eh,0h,0Ah    ;...*.*.......n..
-          db   0D8h,0A4h,3h,0D0h,17h,0ECh,8h,0F0h,14h,0D0h,5h,50h,2h,0Ah,0D8h,0B4h ;...........P....
-          db   4h,0D0h,5h,50h,8h,0Ah,0D8h,0A4h,3h,0D0h,1Dh,0ECh,8h,0F0h,9h,0D0h    ;...P............
-          db   5h,50h,3h,0Ah,0D8h,0B4h,3h,0D0h,5h,50h,9h,0Ah,0D8h,0B4h,1Ah,0ECh    ;.P.......P......
-          db   8h,0F0h,3h,0Eh,0h,6Eh,0Bh,0Eh,1h,6Eh,23h,0Eh,0E1h,6Eh,0h,50h        ;.....n...n#..n.P
-          db   16h,6Eh,10h,0Eh,93h,0ECh,0Bh,0F0h,5h,6Eh,0h,0Ah,0D8h,0A4h,7h,0D0h   ;.n.......n......
-          db   0h,0Eh,93h,0ECh,0Bh,0F0h,28h,0ECh,3h,0F0h,0E7h,6Eh,6h,0D0h,5h,50h   ;......(....n...P
-          db   3h,0Ah,0D8h,0A4h,2h,0D0h,0FEh,0Eh,0E7h,6Eh,0E1h,2Ah,0h,2Ah,1h,2Eh   ;.........n.*.*..
-          db   0E6h,0D7h,31h,0B0h,0C6h,0ECh,23h,0F0h,4h,0Eh,0EAh,6Eh,20h,0Eh,0E9h,6Eh;..1...#....n ..n
-          db   0E1h,6Ah,0Fh,0Eh,0h,6Eh,0EEh,50h,0E6h,6Eh,0h,2Eh,0FCh,0D7h,90h,0D0h ;.j...n.P.n......
+p___D00:  decfsz 42h,a                     ; entry from: 0C6Ch
+          bra    p___D3C
+          movlw  3
+          movwf  42h,a
+          rrcf   3Eh,a
+          rrcf   3Fh,a
+          rrcf   40h,a
+          rrcf   41h,a
+          btfsc  STATUS,0,a
+          bra    p___D1A
+          movlw  10h
+          xorwf  LATA,a
+          bra    p___D1E
+p___D1A:  movlw  20h                       ; entry from: 0D12h
+          xorwf  LATA,a
+p___D1E:  decfsz 28h,a                     ; entry from: 0D18h
+          bra    p___D3C
+          btfss  23h,0,a
+          bcf    23h,4,a
+          movf   3Ah,W,a
+          movwf  3Eh,a
+          movf   3Bh,W,a
+          movwf  3Fh,a
+          movf   3Ch,W,a
+          movwf  40h,a
+          movf   3Dh,W,a
+          movwf  41h,a
+          bcf    23h,0,a
+          movlw  1Ch
+          movwf  28h,a
+
+p___D3C:  call   p___D42                   ; entry from: 0C68h,0D02h,0D20h,0C8Ch,0CBEh,0C74h,0C7Eh,0C5Eh,0C4Ch,0BF4h,0BD8h,0B96h,0B8Ch
+          bra    p___DE6
+
+p___D42:  btfsc  24h,0,a                   ; entry from: 0D3Ch,0B14h
+          bra    p___D56
+          movf   0Eh,W,a
+          btfss  STATUS,2,a
+          bra    p___D56
+          movf   0Fh,W,a
+          xorlw  73h
+          btfsc  STATUS,2,a
+          call   p__3EF0
+
+p___D56:  btfss  2Ah,2,a                   ; entry from: 0D44h,0D4Ah
+          call   p__2D76
+          movf   0Eh,W,a
+          movwf  0,a
+          movwf  18h,a
+          movf   0Fh,W,a
+          movwf  19h,a
+          movlw  13h
+          cpfsgt 0Eh,a
+          bra    p___D70
+          movlw  4
+          subwf  0,a
+p___D70:  bcf    STATUS,0,a                ; entry from: 0D6Ah
+          rlcf   0Fh,W,a
+          movwf  TBLPTRL,a
+          rlcf   0,W,a
+          addlw  57h
+          movwf  TBLPTRH,a
+          tblrd*+
+          movf   TABLAT,W,a
+          movwf  8,a
+          tblrd*
+          movf   TABLAT,W,a
+          movwf  7,a
+          movf   11h,W,a
+          movwf  12h,a
+          movf   10h,W,a
+          movwf  11h,a
+          clrf   10h,a
+          movf   0Eh,W,a
+          movwf  18h,a
+          movf   0Fh,W,a
+          movwf  19h,a
+          xorlw  0FFh
+          btfss  STATUS,2,a
+          bra    p___DB0
+          movf   0Eh,W,a
+          andlw  0Fh
+          xorlw  0Fh
+          btfss  STATUS,2,a
+          bra    p___DB0
+          movlw  10h
+          andwf  0Eh,a
+          bra    p___DB8
+
+p___DB0:  incf   0Fh,a                     ; entry from: 0D9Eh,0DA8h
+          btfsc  STATUS,2,a
+          incf   0Eh,a
+          bra    p___DBA
+p___DB8:  incf   0Fh,a                     ; entry from: 0DAEh
+p___DBA:  btfsc  31h,4,a                   ; entry from: 0DB6h
+          bra    p___DC2
+          btfsc  21h,0,a
+          bsf    0Ah,7,a
+p___DC2:  movf   7,W,a                     ; entry from: 0DBCh
+          andlw  0Fh
+          movwf  0,a
+          btfss  20h,1,a
+          bra    p___DD4
+          movlw  2
+          movwf  0,a
+          bsf    20h,0,a
+          bra    p___DDE
+p___DD4:  bcf    20h,0,a                   ; entry from: 0DCAh
+          movf   0,W,a
+          xorlw  2
+          btfss  STATUS,2,a
+          bcf    20h,4,a
+p___DDE:  bcf    20h,1,a                   ; entry from: 0DD2h
+          call   p___800
+          return 
+p___DE6:  btfss  20h,2,a                   ; entry from: 0D40h
+          bra    p__1000
+          btfss  20h,3,a
+          bra    p__1000
+          bcf    20h,3,a
+          bsf    22h,0,a
+          call   p__1012
+          movlw  20h
+          movwf  FSR1L,a
+          clrf   16h,a
+          movlw  10h
+          call   p__1726
+          xorlw  0
+          btfss  STATUS,2,a
+          bra    p___E14
+          movlw  0
+          call   p__1726
+          call   p___650
+          movwf  INDF1,a
+p___E14:  btfsc  25h,5,a                   ; entry from: 0E06h
+          bcf    INDF1,0,a
+          incf   FSR1L,a
+          incf   16h,a
+          movlw  10h
+          call   p__1726
+          movwf  5,a
+          xorlw  0
+          btfsc  STATUS,2,a
+          bra    p___E32
+          movf   5,W,a
+          xorlw  4
+          btfss  STATUS,2,a
+          bra    p___E3E
+p___E32:  movlw  0                         ; entry from: 0E28h
+          call   p__1726
+          call   p___650
+          movwf  INDF1,a
+p___E3E:  btfsc  LATC,1,a                  ; entry from: 0E30h
+          bcf    INDF1,0,a
+          incf   FSR1L,a
+          incf   16h,a
+          movlw  0
+          call   p__1726
+          movwf  5,a
+          xorlw  0
+          btfss  STATUS,2,a
+          bra    p___E5A
+          call   p__102E
+          bra    p___E82
+p___E5A:  movf   5,W,a                     ; entry from: 0E52h
+          xorlw  2
+          btfsc  STATUS,2,a
+          bra    p___E6A
+          movf   5,W,a
+          xorlw  8
+          btfss  STATUS,2,a
+          bra    p___E70
+p___E6A:  call   p__103A                   ; entry from: 0E60h
+          bra    p___E82
+p___E70:  movf   5,W,a                     ; entry from: 0E68h
+          xorlw  3
+          btfsc  STATUS,2,a
+          bra    p___E7E
+          movf   5,W,a
+          xorlw  9
+          btfsc  STATUS,2,a
+p___E7E:  call   p__1034                   ; entry from: 0E76h
+
+p___E82:  movlw  3                         ; entry from: 0E6Eh,0E58h
+          movwf  0,a
+          movlw  0Bh
+          movwf  1,a
+          movlw  23h
+          movwf  FSR1L,a
+p___E8E:  movf   0,W,a                     ; entry from: 0EC0h
+          movwf  16h,a
+          movlw  10h
+          call   p__1726
+          movwf  5,a
+          xorlw  0
+          btfss  STATUS,2,a
+          bra    p___EAE
+          movlw  0
+          call   p__1726
+          call   p___650
+          movwf  INDF1,a
+          bra    p___EBA
+p___EAE:  movf   5,W,a                     ; entry from: 0E9Eh
+          xorlw  3
+          btfss  STATUS,2,a
+          bra    p___EBA
+          movlw  0FEh
+          movwf  INDF1,a
+
+p___EBA:  incf   FSR1L,a                   ; entry from: 0EB4h,0EACh
+          incf   0,a
+          decfsz 1,a
+          bra    p___E8E
+          btfsc  31h,0,a
+          call   p__478C
+          movlw  4
+          movwf  FSR0H,a
+          movlw  20h
+          movwf  FSR0L,a
+          clrf   FSR1L,a
+          movlw  0Fh
+          movwf  0,a
+p___ED6:  movf   POSTINC0,W,a              ; entry from: 0EDCh
+          movwf  POSTINC1,a
+          decfsz 0,a
+          bra    p___ED6
+          bra    p__1000
           db   0FFh,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0FFh,0Ah,0D8h,0A4h,7h,0D0h;................
           db   0Bh,0Eh,0E9h,0ECh,0Ah,0F0h,39h,0ECh,8h,0F0h,80h,0EFh,5h,0F0h,0h,50h ;......9........P
           db   6h,6Eh,3Bh,0ECh,0Ah,0F0h,0h,0ECh,9h,0F0h,21h,0BAh,0Eh,0D0h,0Bh,0Eh  ;.n;.......!.....
@@ -409,10 +905,18 @@ p___9EA:  movwf  POSTINC0,a                ; entry from: 9EEh
           db   64h,0ECh,8h,0F0h,9Bh,0ECh,1h,0F0h,0DEh,0D7h,0A1h,0ECh,17h,0F0h,80h,0EFh;d...............
           db   5h,0F0h                                                             ;..
 
+
 		ORG 1000h 
-          db   23h,0B4h,7Eh,0D5h,9Dh,0AEh,7Ch,0D5h,0Eh,1h,0CDh,0ABh,79h,0D5h,0A8h,0EFh;#.~...|.....y...
-          db   3h,0F0h                                                             ;..
-p__1012:  movlw  4                         ; entry from: 18Ch
+p__1000:  btfsc  23h,2,a                   ; entry from: 0C56h,0DE8h,0DECh,0EDEh,0BF8h,0C00h,0C04h,0C10h,0BF0h,0BD0h
+          bra    p___B00
+          btfss  RC1STA,7,a
+          bra    p___B00
+          movlb  0Eh
+          btfss  0CDh,5,b                  ; PIR3
+          bra    p___B00
+          goto   p___750
+
+p__1012:  movlw  4                         ; entry from: 0DF2h,4BC4h,18Ch
           movwf  FSR1H,a
           movlw  0
           btfsc  22h,0,a
@@ -426,77 +930,183 @@ p__1024:  movwf  POSTINC1,a                ; entry from: 1028h
           bra    p__1024
           bcf    22h,0,a
           return 
-          db   0FDh,0Eh,0E7h,6Eh,12h,0h,0FBh,0Eh,0E7h,6Eh,12h,0h,0F9h,0Eh,0E7h,6Eh ;...n.....n.....n
-          db   12h,0h,0E9h,6Eh,1h,0Eh,0EAh,6Eh,7h,0Eh,0h,6Eh,0EFh,50h,0E9h,2Ah     ;...n...n...n.P.*
-          db   0E9h,0ECh,0Ah,0F0h,0h,2Eh,0FAh,0D7h,12h,0h,21h,9Ah,51h,0D8h,83h,9Eh ;..........!.Q...
-          db   4Fh,0D8h,88h,8Ch,4Dh,0D8h,83h,8Eh,4Bh,0D8h,83h,9Ch,88h,9Ch,48h,0D8h ;O...M...K.....H.
-          db   83h,9Eh,12h,0h                                                      ;....
-p__1072:  rcall  p__10FE                   ; entry from: 1C6h
-          bcf    LATB,7,a
+p__102E:  movlw  0FDh                      ; entry from: 0E54h
+          movwf  INDF1,a
+          return 
+p__1034:  movlw  0FBh                      ; entry from: 0E7Eh
+          movwf  INDF1,a
+          return 
+p__103A:  movlw  0F9h                      ; entry from: 0E6Ah
+          movwf  INDF1,a
+          return 
+          db   0E9h,6Eh,1h,0Eh,0EAh,6Eh,7h,0Eh,0h,6Eh,0EFh,50h,0E9h,2Ah,0E9h,0ECh  ;.n...n...n.P.*..
+          db   0Ah,0F0h,0h,2Eh,0FAh,0D7h,12h,0h                                    ;........
+
+p__1058:  bcf    21h,5,a                   ; entry from: 1200h,121Eh
           rcall  p__10FE
-          bcf    LATB,6,a
-          bcf    TRISB,6,a
+          bcf    LATA,7,a
           rcall  p__10FE
-          bsf    LATB,7,a
+          bsf    TRISA,6,a
           rcall  p__10FE
-          bsf    TRISB,6,a
+          bsf    LATA,7,a
+          rcall  p__10FE
+          bcf    LATA,6,a
+          bcf    TRISA,6,a
+          rcall  p__10FE
+          bcf    LATA,7,a
+          return 
+
+p__1072:  rcall  p__10FE                   ; entry from: 10F8h,10BEh,3B12h,3B26h,1C6h
+          bcf    LATA,7,a
+          rcall  p__10FE
+          bcf    LATA,6,a
+          bcf    TRISA,6,a
+          rcall  p__10FE
+          bsf    LATA,7,a
+          rcall  p__10FE
+          bsf    TRISA,6,a
           call   p___336
           call   p___336
           return 
-          db   1h,6Eh,8h,0Eh,0h,6Eh,34h,0D8h,1h,36h,0D8h,0B0h,3h,0D0h,83h,9Ch      ;.n...n4..6......
-          db   88h,9Ch,1h,0D0h,88h,8Ch,2Ch,0D8h,83h,8Eh,2Ah,0D8h,83h,9Eh,0h,2Eh    ;......,...*.....
-          db   0F2h,0D7h,88h,8Ch,25h,0D8h,83h,8Eh,23h,0D8h,8Dh,0ACh,3h,0D0h,21h,8Ah;....%...#.....!.
-          db   0D9h,0DFh,12h,0h,1Dh,0D8h,83h,9Eh,12h,0h,88h,8Ch,8h,0Eh,0h,6Eh      ;...............n
-          db   17h,0D8h,83h,8Eh,15h,0D8h,0D8h,90h,8Dh,0BCh,0D8h,80h,1h,36h,10h,0D8h;.............6..
-          db   83h,9Eh,0h,2Eh,0F5h,0D7h,20h,0AAh,2h,0D0h,83h,9Ch,88h,9Ch,8h,0D8h   ;...... .........
-          db   83h,8Eh,6h,0D8h,83h,9Eh,88h,8Ch,20h,0AAh,0BCh,0DFh,1h,50h,12h,0h    ;........ ....P..
 
-p__10FE:  movlw  45h                       ; entry from: 1072h,1076h,107Ch,1080h
+p__108E:  movwf  1,a                       ; entry from: 1208h,1210h,1218h,1226h
+          movlw  8
+          movwf  0,a
+p__1094:  rcall  p__10FE                   ; entry from: 10AEh
+          rlcf   1,a
+          btfsc  STATUS,0,a
+          bra    p__10A2
+          bcf    LATA,6,a
+          bcf    TRISA,6,a
+          bra    p__10A4
+p__10A2:  bsf    TRISA,6,a                 ; entry from: 109Ah
+p__10A4:  rcall  p__10FE                   ; entry from: 10A0h
+          bsf    LATA,7,a
+          rcall  p__10FE
+          bcf    LATA,7,a
+          decfsz 0,a
+          bra    p__1094
+          bsf    TRISA,6,a
+          rcall  p__10FE
+          bsf    LATA,7,a
+          rcall  p__10FE
+          btfss  PORTA,6,a
+          bra    p__10C2
+          bsf    21h,5,a
+          rcall  p__1072
+          return 
+p__10C2:  rcall  p__10FE                   ; entry from: 10BAh
+          bcf    LATA,7,a
+          return 
+
+p__10C8:  bsf    TRISA,6,a                 ; entry from: 2F24h,2F30h,4BDAh,4C00h,4C0Ch,4BE6h,14EEh,14FAh
+          movlw  8
+          movwf  0,a
+p__10CE:  rcall  p__10FE                   ; entry from: 10E2h
+          bsf    LATA,7,a
+          rcall  p__10FE
+          bcf    STATUS,0,a
+          btfsc  PORTA,6,a
+          bsf    STATUS,0,a
+          rlcf   1,a
+          rcall  p__10FE
+          bcf    LATA,7,a
+          decfsz 0,a
+          bra    p__10CE
+          btfss  20h,5,a
+          bra    p__10EC
+          bcf    LATA,6,a
+          bcf    TRISA,6,a
+p__10EC:  rcall  p__10FE                   ; entry from: 10E6h
+          bsf    LATA,7,a
+          rcall  p__10FE
+          bcf    LATA,7,a
+          bsf    TRISA,6,a
+          btfss  20h,5,a
+          rcall  p__1072
+          movf   1,W,a
+          return 
+
+p__10FE:  movlw  45h                       ; entry from: 10CEh,10D2h,10DCh,10ECh,10F0h,1072h,1076h,107Ch,1080h,1094h,10A4h,10A8h,10B2h,10B6h,10C2h,105Ah,105Eh,1062h,1066h,106Ch
 p__1100:  nop                              ; entry from: 1104h
           decfsz 33h,a
           bra    p__1100
           return 
 
+
 		ORG 1200h 
-          db   2Bh,0DFh,0A0h,0Eh,21h,0B6h,58h,10h,42h,0DFh,21h,0BAh,12h,0h,38h,50h ;+...!.X.B.!...8P
-          db   3Eh,0DFh,21h,0BAh,12h,0h,39h,50h,3Ah,0DFh,21h,0BAh,12h,0h,1Ch,0DFh  ;>.!...9P:.!.....
-          db   0A1h,0Eh,21h,0B6h,58h,10h,33h,0DFh,20h,8Ah,12h,0h,1h,0Eh,0E9h,0ECh  ;..!.X.3. .......
-          db   0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,48h,0ECh,9h,0F0h,0E9h,0ECh,0Ah,0F0h,80h,0Eh;......H.........
-          db   81h,6Eh,80h,0EFh,5h,0F0h,2Ah,50h,80h,0Bh,4h,6Eh,2h,0Eh,0E9h,0ECh    ;.n....*P...n....
-          db   0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,7Eh,6Eh,0E3h,0ECh,0Ah,0F0h,3h,6Eh,4Fh,0ECh;......~n.....nO.
-          db   9h,0F0h,2h,0Eh,0E9h,0ECh,0Ah,0F0h,7Eh,4h,0h,0Ah,0D8h,0A4h,80h,0EFh  ;........~.......
-          db   5h,0F0h,31h,9Eh,3h,50h,2Ah,6Eh,80h,0Bh,4h,18h,0D8h,0B4h,80h,0EFh    ;..1..P*n........
-          db   5h,0F0h,0FFh,0h,0h,0EFh,0h,0F0h,0A8h,0ECh,0h,0F0h,80h,0EFh,5h,0F0h  ;................
+p__1200:  rcall  p__1058                   ; entry from: 2F08h,4BD0h,14DCh
+          movlw  0A0h
+          btfsc  21h,3,a
+          iorwf  58h,W,a
+          rcall  p__108E
+          btfsc  21h,5,a
+          return 
+          movf   38h,W,a
+          rcall  p__108E
+          btfsc  21h,5,a
+          return 
+          movf   39h,W,a
+          rcall  p__108E
+          btfsc  21h,5,a
+          return 
+          rcall  p__1058
+          movlw  0A1h
+          btfsc  21h,3,a
+          iorwf  58h,W,a
+          rcall  p__108E
+          bsf    20h,5,a
+          return 
+          db   1h,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,48h,0ECh,9h,0F0h,0E9h,0ECh;..........H.....
+          db   0Ah,0F0h,80h,0Eh,81h,6Eh,80h,0EFh,5h,0F0h,2Ah,50h,80h,0Bh,4h,6Eh    ;.....n....*P...n
+          db   2h,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,7Eh,6Eh,0E3h,0ECh,0Ah,0F0h;..........~n....
+          db   3h,6Eh,4Fh,0ECh,9h,0F0h,2h,0Eh,0E9h,0ECh,0Ah,0F0h,7Eh,4h,0h,0Ah     ;.nO.........~...
+          db   0D8h,0A4h,80h,0EFh,5h,0F0h,31h,9Eh,3h,50h,2Ah,6Eh,80h,0Bh,4h,18h    ;......1..P*n....
+          db   0D8h,0B4h,80h,0EFh,5h,0F0h,0FFh,0h,0h,0EFh,0h,0F0h,0A8h,0ECh,0h,0F0h;................
+          db   80h,0EFh,5h,0F0h                                                    ;....
 
 p__1290:  movwf  7Eh,a                     ; entry from: 0E4h,15DCh
           movlw  0
-          movwf  NVMCON2,a
-          bsf    NVMCON2,0,a
-          movf   NVMCON1,W,a
+          movwf  NVMCON1,a
+          bsf    NVMCON1,0,a
+          movf   NVMDAT,W,a
           incf   7Eh,a
           return 
-          db   80h,6Eh,0AAh,0ECh,0h,0F0h,4h,0Eh,81h,6Eh,55h,0Eh,82h,6Eh,0AAh,0Eh   ;.n.......nU..n..
-          db   82h,6Eh,81h,82h,81h,0B2h,0FEh,0D7h,7Eh,2Ah,0BDh,8Eh,12h,0h,0AAh,0ECh;.n......~*......
-          db   0h,0F0h,3h,0Eh,0E9h,0ECh,0Ah,0F0h,55h,0ECh,0Bh,0F0h,65h,0ECh,0Bh,0F0h;........U...e...
-          db   0h,0ECh,9h,0F0h,21h,0BAh,2Bh,0EFh,0Bh,0F0h,3h,0Eh,0E9h,0ECh,0Ah,0F0h;....!.+.........
-          db   0E3h,0ECh,0Ah,0F0h,0EEh,0Ah,0D8h,0A4h,9h,0D0h,0Ah,0Eh,5h,6Eh,64h,0ECh;.............nd.
-          db   8h,0F0h,0E9h,0ECh,0Ah,0F0h,5h,2Eh,0FAh,0D7h,0F2h,0D7h,20h,9Ah,64h,0ECh;............ .d.
-          db   8h,0F0h,3h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh,5h,0F0h,0AAh,0ECh;................
-          db   0h,0F0h,4h,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0FFh,0Ah,0D8h,0B4h;................
-          db   10h,0D0h,0h,50h,55h,0Ah,0D8h,0B4h,12h,0D0h,0h,50h,0AAh,0Ah,0D8h,0B4h;...PU......P....
-          db   17h,0D0h,0Ah,0Eh,2h,6Eh,0E3h,0ECh,0Ah,0F0h,0E6h,6Eh,2h,2Eh,0FBh,0D7h;.....n.....n....
-          db   0E8h,0D7h,4h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh,5h,0F0h,55h,0Eh;..............U.
-          db   0E9h,0ECh,0Ah,0F0h,55h,0ECh,0Bh,0F0h,5h,0Eh,0E2h,6Eh,0E1h,6Ah,0D9h,0D7h;....U......n.j..
-          db   0B5h,0ECh,9h,0F0h,21h,0AAh,0D5h,0D7h,2Bh,0EFh,0Bh,0F0h,65h,0ECh,0Bh,0F0h;....!...+...e...
-          db   51h,6Ah,96h,0Eh,52h,6Eh,5h,0Eh,0E2h,6Eh,0E1h,6Ah,2Ch,0ECh,8h,0F0h   ;Qj..Rn...n.j,...
-          db   0A0h,0Eh,21h,0B6h,58h,10h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,38h,50h  ;..!.X.G...!...8P
-          db   47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,39h,50h,47h,0ECh,8h,0F0h,21h,0BAh  ;G...!...9PG...!.
-          db   12h,0h,0E6h,50h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,58h,0B2h,9h,0D0h   ;...PG...!...X...
-          db   39h,2Ah,7Fh,0Eh,39h,14h,0D8h,0A4h,13h,0D0h,39h,52h,0D8h,0A4h,6h,0D0h;9*..9.....9R....
-          db   2h,0D0h,39h,3Eh,0Dh,0D0h,38h,2Ah,0D8h,0B4h,21h,86h,39h,0ECh,8h,0F0h ;..9>..8*..!.9...
-          db   52h,2Eh,0D4h,0D7h,51h,6h,0FFh,0Eh,51h,18h,0D8h,0A4h,0CFh,0D7h,12h,0h;R...Q...Q.......
-          db   52h,2Eh,0DFh,0D7h,51h,6h,0FFh,0Eh,51h,18h,0D8h,0A4h,0DAh,0D7h,39h,0ECh;R...Q...Q.....9.
-          db   8h,0F0h,12h,0h                                                      ;....
+
+p__129E:  movwf  NVMDAT,a                  ; entry from: 3FA4h,3FC4h
+          call   p___154
+          movlw  4
+          movwf  NVMCON1,a
+          movlw  55h
+          movwf  NVMCON2,a
+          movlw  0AAh
+          movwf  NVMCON2,a
+          bsf    NVMCON1,1,a
+p__12B2:  btfsc  NVMCON1,1,a               ; entry from: 12B4h
+          bra    p__12B2
+          incf   7Eh,a
+          bsf    T2CON,7,a
+          return 
+          db   0AAh,0ECh,0h,0F0h,3h,0Eh,0E9h,0ECh,0Ah,0F0h,55h,0ECh,0Bh,0F0h,65h,0ECh;..........U...e.
+          db   0Bh,0F0h,0h,0ECh,9h,0F0h,21h,0BAh,2Bh,0EFh,0Bh,0F0h,3h,0Eh,0E9h,0ECh;......!.+.......
+          db   0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0EEh,0Ah,0D8h,0A4h,9h,0D0h,0Ah,0Eh,5h,6Eh;...............n
+          db   64h,0ECh,8h,0F0h,0E9h,0ECh,0Ah,0F0h,5h,2Eh,0FAh,0D7h,0F2h,0D7h,20h,9Ah;d............. .
+          db   64h,0ECh,8h,0F0h,3h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh,5h,0F0h;d...............
+          db   0AAh,0ECh,0h,0F0h,4h,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0FFh,0Ah;................
+          db   0D8h,0B4h,10h,0D0h,0h,50h,55h,0Ah,0D8h,0B4h,12h,0D0h,0h,50h,0AAh,0Ah;.....PU......P..
+          db   0D8h,0B4h,17h,0D0h,0Ah,0Eh,2h,6Eh,0E3h,0ECh,0Ah,0F0h,0E6h,6Eh,2h,2Eh;.......n.....n..
+          db   0FBh,0D7h,0E8h,0D7h,4h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh,5h,0F0h;................
+          db   55h,0Eh,0E9h,0ECh,0Ah,0F0h,55h,0ECh,0Bh,0F0h,5h,0Eh,0E2h,6Eh,0E1h,6Ah;U.....U......n.j
+          db   0D9h,0D7h,0B5h,0ECh,9h,0F0h,21h,0AAh,0D5h,0D7h,2Bh,0EFh,0Bh,0F0h,65h,0ECh;......!...+...e.
+          db   0Bh,0F0h,51h,6Ah,96h,0Eh,52h,6Eh,5h,0Eh,0E2h,6Eh,0E1h,6Ah,2Ch,0ECh  ;..Qj..Rn...n.j,.
+          db   8h,0F0h,0A0h,0Eh,21h,0B6h,58h,10h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h  ;....!.X.G...!...
+          db   38h,50h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,39h,50h,47h,0ECh,8h,0F0h   ;8PG...!...9PG...
+          db   21h,0BAh,12h,0h,0E6h,50h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,58h,0B2h  ;!....PG...!...X.
+          db   9h,0D0h,39h,2Ah,7Fh,0Eh,39h,14h,0D8h,0A4h,13h,0D0h,39h,52h,0D8h,0A4h;..9*..9.....9R..
+          db   6h,0D0h,2h,0D0h,39h,3Eh,0Dh,0D0h,38h,2Ah,0D8h,0B4h,21h,86h,39h,0ECh ;....9>..8*..!.9.
+          db   8h,0F0h,52h,2Eh,0D4h,0D7h,51h,6h,0FFh,0Eh,51h,18h,0D8h,0A4h,0CFh,0D7h;..R...Q...Q.....
+          db   12h,0h,52h,2Eh,0DFh,0D7h,51h,6h,0FFh,0Eh,51h,18h,0D8h,0A4h,0DAh,0D7h;..R...Q...Q.....
+          db   39h,0ECh,8h,0F0h,12h,0h                                             ;9.....
 
 		ORG 1400h 
           db   0Bh,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0h,0Ah,0D8h,0A4h,70h,0EFh;..............p.
@@ -506,15 +1116,38 @@ p__1290:  movwf  7Eh,a                     ; entry from: 0E4h,15DCh
           db   0Ah,0F0h,6h,6Eh,6h,0Eh,0E2h,6Eh,0E1h,6Ah,0Bh,0Eh,1h,6Eh,0E3h,0ECh   ;...n...n.j...n..
           db   0Ah,0F0h,0E6h,6Eh,1h,2Eh,0FBh,0D7h,3Bh,0ECh,0Ah,0F0h,6h,0Eh,0E2h,6Eh;...n....;......n
           db   0E1h,6Ah,0Bh,0Eh,6h,6Eh,0BDh,0ECh,9h,0F0h,55h,0Eh,21h,0BAh,0FFh,0Eh ;.j...n....U.!...
-          db   0E9h,0ECh,0Ah,0F0h,0D1h,0D7h,6h,50h,10h,0Dh,0F3h,50h,39h,6Eh,0F9h,0Eh;.......P...P9n..
-          db   0F4h,24h,38h,6Eh,21h,86h,51h,6Ah,12h,0h,0AAh,0ECh,0h,0F0h,0Ch,0Eh   ;.$8n!.Qj........
-          db   0E9h,0ECh,0Ah,0F0h,22h,0A4h,3h,0D0h,2Ah,0BEh,13h,0ECh,24h,0F0h,2h,0Eh;...."...*...$...
-          db   0E2h,6Eh,0E1h,6Ah,0E3h,0ECh,0Ah,0F0h,55h,0Ah,0D8h,0A4h,6h,0D0h,0BDh,8Eh;.n.j....U.......
-          db   0Ch,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h,0h,50h,0AAh,0Ah,0D8h,0A4h;...........P....
-          db   0F1h,0D7h,0AAh,0Eh,0E9h,0ECh,0Ah,0F0h,7h,0Eh,5h,6Eh,0E6h,50h,0E9h,0ECh;...........n.P..
-          db   0Ah,0F0h,5h,2Eh,0FBh,0D7h,0E6h,0D7h,65h,0ECh,0Bh,0F0h,0h,0ECh,9h,0F0h;........e.......
-          db   21h,0BAh,12h,0h,5h,0Eh,0E2h,6Eh,0E1h,6Ah,96h,0Eh,6h,6Eh,64h,0ECh    ;!......n.j...nd.
-          db   8h,0F0h,0E6h,6Eh,6h,2Eh,0FBh,0D7h,20h,9Ah,64h,0ECh,8h,0F0h,12h,0h   ;...n.... .d.....
+          db   0E9h,0ECh,0Ah,0F0h,0D1h,0D7h                                        ;......
+p__1476:  movf   6,W,a                     ; entry from: 2F04h
+          mullw  10h
+          movf   PRODL,W,a
+          movwf  39h,a
+          movlw  0F9h
+          addwf  PRODH,W,a
+          movwf  38h,a
+          bsf    21h,3,a
+          clrf   51h,a
+          return 
+          db   0AAh,0ECh,0h,0F0h,0Ch,0Eh,0E9h,0ECh,0Ah,0F0h,22h,0A4h,3h,0D0h,2Ah,0BEh;.........."...*.
+          db   13h,0ECh,24h,0F0h,2h,0Eh,0E2h,6Eh,0E1h,6Ah,0E3h,0ECh,0Ah,0F0h,55h,0Ah;..$....n.j....U.
+          db   0D8h,0A4h,6h,0D0h,0BDh,8Eh,0Ch,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h;................
+          db   0h,50h,0AAh,0Ah,0D8h,0A4h,0F1h,0D7h,0AAh,0Eh,0E9h,0ECh,0Ah,0F0h,7h,0Eh;.P..............
+          db   5h,6Eh,0E6h,50h,0E9h,0ECh,0Ah,0F0h,5h,2Eh,0FBh,0D7h,0E6h,0D7h       ;.n.P..........
+p__14D8:  call   p__16CA                   ; entry from: 3B22h
+          call   p__1200
+          btfsc  21h,5,a
+          return 
+          movlw  5
+          movwf  FSR1H,a
+          clrf   FSR1L,a
+          movlw  96h
+          movwf  6,a
+p__14EE:  call   p__10C8                   ; entry from: 14F6h
+          movwf  POSTINC1,a
+          decfsz 6,a
+          bra    p__14EE
+          bcf    20h,5,a
+          call   p__10C8
+          return 
           db   5h,0Eh,0E9h,0ECh,0Ah,0F0h,55h,0ECh,0Bh,0F0h,1h,0Eh,21h,0BEh,36h,0Eh ;......U.....!.6.
           db   6h,6Eh,0AAh,0ECh,0h,0F0h,32h,0ECh,0Bh,0F0h,21h,0BAh,2Bh,0EFh,0Bh,0F0h;.n....2...!.+...
           db   0BDh,8Eh,5h,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h,0AAh,0ECh,0h,0F0h;................
@@ -528,7 +1161,12 @@ p__1290:  movwf  7Eh,a                     ; entry from: 0E4h,15DCh
           db   0E3h,0ECh,0Ah,0F0h,0FFh,0Ah,0D8h,0B4h,8h,0D0h,96h,0Eh,27h,26h,0D8h,0A0h;............'&..
           db   0CAh,0D7h,26h,2Ah,0D8h,0B4h,21h,86h,0C6h,0D7h,6h,0Eh,0E9h,0ECh,0Ah,0F0h;..&*..!.........
           db   0BDh,8Eh,80h,0EFh,5h,0F0h,0Eh,1h,0CDh,0ABh,0FEh,0D7h,99h,50h,0h,6Eh ;.............P.n
-          db   12h,0h,9Ah,6Eh,9Eh,0A2h,0FEh,0D7h,12h,0h                            ;...n......
+          db   12h,0h                                                              ;..
+
+p__15D2:  movwf  TX1REG,a                  ; entry from: 1658h,0BB8h
+p__15D4:  btfss  TX1STA,1,a                ; entry from: 15D6h
+          bra    p__15D4
+          return 
 p__15DA:  movlw  9                         ; entry from: 0EAh
           call   p__1290
           xorlw  0FFh
@@ -544,53 +1182,114 @@ p__15DA:  movlw  9                         ; entry from: 0EAh
           db   5h,0F0h,0AAh,0ECh,0h,0F0h,0Ah,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h;................
           db   0AAh,0Ah,0D8h,0A4h,0Ah,0D0h,0h,0Eh,8Eh,0A2h,1h,9h,8Eh,0A6h,2h,9h    ;................
           db   8Eh,0A8h,4h,9h,0E9h,0ECh,0Ah,0F0h,0F1h,0D7h,0Ah,0Eh,0E9h,0ECh,0Ah,0F0h;................
-          db   0BDh,8Eh,80h,0EFh,5h,0F0h,0AEh,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,21h,9Ah;..............!.
-          db   80h,0EFh,5h,0F0h,65h,0ECh,0Bh,0F0h,2Ch,0ECh,8h,0F0h,21h,0BAh,12h,0h ;....e...,...!...
-          db   0A0h,0Eh,21h,0B6h,58h,10h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,38h,50h  ;..!.X.G...!...8P
-          db   47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,39h,50h,47h,0ECh,8h,0F0h,21h,0BAh  ;G...!...9PG...!.
-          db   12h,0h,0FFh,0Eh,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,39h,0ECh,8h,0F0h   ;....G...!...9...
-          db   8Ah,0ECh,25h,0F0h,6h,2Eh,0DEh,0D7h,12h,0h,0E3h,0ECh,0Ah,0F0h,0Fh,0Bh;..%.............
-          db   47h,6Eh,0E3h,0ECh,0Ah,0F0h,0FFh,0Ah,0D8h,0B4h,4h,0D0h,21h,9Eh,0h,50h;Gn..........!..P
-          db   48h,6Eh,12h,0h,21h,8Eh,48h,6Ah,12h,0h,48h,38h,0Fh,0Bh,0Ah,0Dh       ;Hn..!.Hj..H8....
-          db   0F3h,50h,3h,6Eh,48h,50h,0Fh,0Bh,3h,24h,96h,0Dh,0F4h,50h,38h,6Eh     ;.P.nHP...$...P8n
-          db   0F3h,50h,39h,6Eh,47h,50h,7h,0Bh,20h,0Dh,0F3h,50h,38h,26h,21h,96h    ;.P9nGP.. ..P8&!.
-          db   47h,0B6h,21h,86h,12h,0h,21h,98h,48h,6Ah,65h,0ECh,0Bh,0F0h,0h,0ECh   ;G.!...!.Hje.....
-          db   9h,0F0h,21h,0BAh,12h,0h,20h,9Ah,64h,0ECh,8h,0F0h,0FFh,0Ah,0D8h,0B4h ;..!... .d.......
-          db   8h,0D0h,9Bh,0ECh,1h,0F0h,8Ah,0ECh,25h,0F0h,48h,52h,0D8h,0A4h,0EDh,0D7h;........%.HR....
-          db   12h,0h,21h,88h,12h,0h,0E9h,6Eh,1h,0Eh,0EAh,6Eh,0D8h,90h,16h,30h     ;..!....n...n...0
-          db   0E9h,26h,0EFh,50h,16h,0A0h,0EFh,38h,0Fh,0Bh,13h,6Eh,12h,0h,0E9h,6Eh ;.&.P...8...n...n
-          db   1h,0Eh,0EAh,6Eh,0D8h,90h,16h,30h,0E9h,26h,0F0h,0Eh,16h,0A0h,0Fh,0Eh ;...n...0.&......
-          db   0EFh,16h,13h,50h,16h,0A0h,13h,38h,0EFh,12h,12h,0h,16h,0Eh,8h,0B6h   ;...P...8........
-          db   15h,0Eh,0E9h,6Eh,0EAh,6Ah,15h,6Ah,16h,6Ah,3Eh,0ECh,5h,0F0h,0EFh,6Eh ;...n.j.j.j>....n
-          db   12h,0h,0Eh,50h,0E9h,0ECh,0Ah,0F0h,0Fh,50h,0E9h,0ECh,0Ah,0F0h,80h,0EFh;...P.....P......
-          db   5h,0F0h,0FFh,0h,0h,0EFh,0h,0F0h                                     ;........
+          db   0BDh,8Eh,80h,0EFh,5h,0F0h                                           ;......
+p__1656:  movlw  0AEh                      ; entry from: 4816h
+          call   p__15D2
+          bsf    T2CON,7,a
+          bcf    21h,5,a
+          goto   p___B00
+          db   65h,0ECh,0Bh,0F0h,2Ch,0ECh,8h,0F0h,21h,0BAh,12h,0h,0A0h,0Eh,21h,0B6h;e...,...!.....!.
+          db   58h,10h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,38h,50h,47h,0ECh,8h,0F0h   ;X.G...!...8PG...
+          db   21h,0BAh,12h,0h,39h,50h,47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,0FFh,0Eh   ;!...9PG...!.....
+          db   47h,0ECh,8h,0F0h,21h,0BAh,12h,0h,39h,0ECh,8h,0F0h,8Ah,0ECh,25h,0F0h ;G...!...9.....%.
+          db   6h,2Eh,0DEh,0D7h,12h,0h,0E3h,0ECh,0Ah,0F0h,0Fh,0Bh,47h,6Eh,0E3h,0ECh;............Gn..
+          db   0Ah,0F0h,0FFh,0Ah,0D8h,0B4h,4h,0D0h,21h,9Eh,0h,50h,48h,6Eh,12h,0h   ;........!..PHn..
+          db   21h,8Eh,48h,6Ah,12h,0h                                              ;!.Hj..
+
+p__16CA:  swapf  48h,W,a                   ; entry from: 4BCCh,14D8h
+          andlw  0Fh
+          mullw  0Ah
+          movf   PRODL,W,a
+          movwf  3,a
+          movf   48h,W,a
+          andlw  0Fh
+          addwf  3,W,a
+          mullw  96h
+          movf   PRODH,W,a
+          movwf  38h,a
+          movf   PRODL,W,a
+          movwf  39h,a
+          movf   47h,W,a
+          andlw  7
+          mullw  20h
+          movf   PRODL,W,a
+          addwf  38h,a
+          bcf    21h,3,a
+          btfsc  47h,3,a
+          bsf    21h,3,a
+          return 
+          db   21h,98h,48h,6Ah,65h,0ECh,0Bh,0F0h,0h,0ECh,9h,0F0h,21h,0BAh,12h,0h   ;!.Hje.......!...
+          db   20h,9Ah,64h,0ECh,8h,0F0h,0FFh,0Ah,0D8h,0B4h,8h,0D0h,9Bh,0ECh,1h,0F0h; .d.............
+          db   8Ah,0ECh,25h,0F0h,48h,52h,0D8h,0A4h,0EDh,0D7h,12h,0h,21h,88h,12h,0h ;..%.HR......!...
+
+p__1726:  movwf  FSR0L,a                   ; entry from: 0DFEh,0E1Eh,0E34h,0E48h,0E94h,0EA2h,0E0Ah,2DECh,2DFAh,2E54h,2E62h
+          movlw  1
+          movwf  FSR0H,a
+          bcf    STATUS,0,a
+          rrcf   16h,W,a
+          addwf  FSR0L,a
+          movf   INDF0,W,a
+          btfss  16h,0,a
+          swapf  INDF0,W,a
+          andlw  0Fh
+          movwf  13h,a
+          return 
+
+p__173E:  movwf  FSR0L,a                   ; entry from: 2E1Ch,2E26h,2E08h,2DC2h,2DCEh,2DAEh,2E88h,2EA0h,2EA8h,2EB0h,2EB8h,2EC0h,2EC8h,2ED4h,2EE0h,2EECh,2EF8h
+          movlw  1
+          movwf  FSR0H,a
+          bcf    STATUS,0,a
+          rrcf   16h,W,a
+          addwf  FSR0L,a
+          movlw  0F0h
+          btfss  16h,0,a
+          movlw  0Fh
+          andwf  INDF0,a
+          movf   13h,W,a
+          btfss  16h,0,a
+          swapf  13h,W,a
+          iorwf  INDF0,a
+          return 
+          db   16h,0Eh,8h,0B6h,15h,0Eh,0E9h,6Eh,0EAh,6Ah,15h,6Ah,16h,6Ah,3Eh,0ECh  ;.......n.j.j.j>.
+          db   5h,0F0h,0EFh,6Eh,12h,0h,0Eh,50h,0E9h,0ECh,0Ah,0F0h,0Fh,50h,0E9h,0ECh;...n...P.....P..
+          db   0Ah,0F0h,80h,0EFh,5h,0F0h,0FFh,0h,0h,0EFh,0h,0F0h                   ;............
 
 		ORG 1800h 
-          db   8h,50h,0D8h,0B4h,12h,0h,1Ch,50h,0Eh,6Eh,1Dh,50h,0Fh,6Eh,1Eh,50h     ;.P.....P.n.P.n.P
-          db   1Ch,6Eh,1Fh,50h,1Dh,6Eh,12h,0h,1Ch,50h,1Eh,6Eh,1Dh,50h,1Fh,6Eh      ;.n.P.n...P.n.P.n
-          db   0Eh,50h,1Ch,6Eh,0Fh,50h,1Dh,6Eh,8h,50h,0Fh,6Eh,58h,0ECh,13h,0F0h    ;.P.n.P.n.P.nX...
-          db   2Ah,0BAh,12h,0h,18h,50h,15h,0Ah,0D8h,0A4h,12h,0h,19h,50h,8Fh,0Ah    ;*....P.......P..
-          db   0D8h,0B4h,31h,9Eh,12h,0h,20h,0B8h,1Bh,0D0h,20h,0A0h,9h,0D0h,18h,50h ;..1... ... ....P
-          db   1Ch,0Bh,0Eh,6Eh,7h,50h,3h,0Bh,0Eh,12h,8h,50h,0Fh,6Eh,4h,0D0h        ;...n.P.....P.n..
-          db   1Fh,0Eh,0Eh,16h,8h,50h,0Fh,6Eh,58h,0ECh,13h,0F0h,0Eh,50h,0F0h,0Bh   ;.....P.nX....P..
-          db   0D8h,0B4h,12h,0h,14h,0Eh,0Eh,5Ch,0D8h,0B0h,12h,0h,0Fh,0Eh,0Eh,16h   ;.......\........
-          db   20h,98h,12h,0h,80h,0EFh,4h,0F0h,9h,50h,16h,6Eh,6Bh,0EFh,0Ch,0F0h    ; ........P.nk...
-          db   3h,0Eh,16h,6Eh,0Ch,0Eh,6Bh,0EFh,0Ch,0F0h,16h,6Ah,2h,0Eh,6Bh,0EFh    ;...n..k....j..k.
-          db   0Ch,0F0h,16h,6Ah,0Dh,0Eh,6Bh,0EFh,0Ch,0F0h,16h,6Ah,0Eh,0Eh,9h,5Ch   ;...j..k....j...\.
-          db   0D8h,0B0h,3h,0D0h,9h,50h,6Bh,0EFh,0Ch,0F0h,0Dh,0Eh,6Bh,0EFh,0Ch,0F0h;.....Pk.....k...
-          db   3h,0Eh,16h,6Eh,0Dh,0Eh,6Bh,0EFh,0Ch,0F0h,2h,0Eh,16h,6Eh,6Bh,0EFh    ;...n..k......nk.
-          db   0Ch,0F0h,0Dh,0Eh,16h,6Eh,15h,6Eh,8h,32h,8h,32h,8h,30h,1Fh,0Bh       ;.....n.n.2.2.0..
-          db   35h,0EFh,4h,0F0h,20h,82h,10h,0Eh,93h,0ECh,0Bh,0F0h,0D8h,0A4h,5h,0D0h;5... ...........
-          db   14h,0ECh,13h,0F0h,0D8h,0A4h,0F6h,0D7h,12h,0h,20h,88h,12h,0h,13h,6Ah ;.......... ....j
-          db   10h,0Eh,9Fh,0ECh,0Bh,0F0h,14h,0ECh,13h,0F0h,0D8h,0A4h,0F9h,0D7h,20h,86h;.............. .
-          db   12h,0h,20h,82h,0h,0Eh,93h,0ECh,0Bh,0F0h,1h,6Eh,20h,0Eh,93h,0ECh     ;.. ........n ...
-          db   0Bh,0F0h,29h,0ECh,13h,0F0h,14h,0ECh,13h,0F0h,0D8h,0A4h,0F2h,0D7h,12h,0h;..).............
-          db   20h,82h,20h,88h,20h,0Eh,93h,0ECh,0Bh,0F0h,0D8h,0A4h,5h,0D0h,14h,0ECh; . . ...........
-          db   13h,0F0h,0D8h,0A4h,0F7h,0D7h,12h,0h,20h,98h,12h,0h,22h,0BCh,8h,0D0h ;........ ..."...
-          db   0Eh,50h,0D8h,0A4h,5h,0D0h,0Fh,50h,5Eh,0Ah,0D8h,0B4h,4Ch,0ECh,1Fh,0F0h;.P.....P^...L...
-          db   10h,0Eh,93h,0ECh,0Bh,0F0h,20h,0Eh,9Fh,0ECh,0Bh,0F0h,14h,0ECh,13h,0F0h;...... .........
-          db   0D8h,0A4h,0ECh,0D7h,12h,0h,18h,50h,15h,0Ah,0D8h,0A4h,12h,0h,19h,50h ;.......P.......P
-          db   1Dh,0Ah,0D8h,0B4h,31h,8Eh,12h,0h                                    ;....1...
+p__1800:  movf   8,W,a                     ; entry from: 80Ch
+          btfsc  STATUS,2,a
+          return 
+          movf   1Ch,W,a
+          movwf  0Eh,a
+          movf   1Dh,W,a
+          movwf  0Fh,a
+          movf   1Eh,W,a
+          movwf  1Ch,a
+          movf   1Fh,W,a
+          movwf  1Dh,a
+          return 
+          db   1Ch,50h,1Eh,6Eh,1Dh,50h,1Fh,6Eh,0Eh,50h,1Ch,6Eh,0Fh,50h,1Dh,6Eh     ;.P.n.P.n.P.n.P.n
+          db   8h,50h,0Fh,6Eh,58h,0ECh,13h,0F0h,2Ah,0BAh,12h,0h,18h,50h,15h,0Ah    ;.P.nX...*....P..
+          db   0D8h,0A4h,12h,0h,19h,50h,8Fh,0Ah,0D8h,0B4h,31h,9Eh,12h,0h,20h,0B8h  ;.....P....1... .
+          db   1Bh,0D0h,20h,0A0h,9h,0D0h,18h,50h,1Ch,0Bh,0Eh,6Eh,7h,50h,3h,0Bh     ;.. ....P...n.P..
+          db   0Eh,12h,8h,50h,0Fh,6Eh,4h,0D0h,1Fh,0Eh,0Eh,16h,8h,50h,0Fh,6Eh       ;...P.n.......P.n
+          db   58h,0ECh,13h,0F0h,0Eh,50h,0F0h,0Bh,0D8h,0B4h,12h,0h,14h,0Eh,0Eh,5Ch ;X....P.........\.
+          db   0D8h,0B0h,12h,0h,0Fh,0Eh,0Eh,16h,20h,98h,12h,0h,80h,0EFh,4h,0F0h    ;........ .......
+          db   9h,50h,16h,6Eh,6Bh,0EFh,0Ch,0F0h,3h,0Eh,16h,6Eh,0Ch,0Eh,6Bh,0EFh    ;.P.nk......n..k.
+          db   0Ch,0F0h,16h,6Ah,2h,0Eh,6Bh,0EFh,0Ch,0F0h,16h,6Ah,0Dh,0Eh,6Bh,0EFh  ;...j..k....j..k.
+          db   0Ch,0F0h,16h,6Ah,0Eh,0Eh,9h,5Ch,0D8h,0B0h,3h,0D0h,9h,50h,6Bh,0EFh   ;...j...\.....Pk.
+          db   0Ch,0F0h,0Dh,0Eh,6Bh,0EFh,0Ch,0F0h,3h,0Eh,16h,6Eh,0Dh,0Eh,6Bh,0EFh  ;....k......n..k.
+          db   0Ch,0F0h,2h,0Eh,16h,6Eh,6Bh,0EFh,0Ch,0F0h,0Dh,0Eh,16h,6Eh,15h,6Eh   ;.....nk......n.n
+          db   8h,32h,8h,32h,8h,30h,1Fh,0Bh,35h,0EFh,4h,0F0h,20h,82h,10h,0Eh       ;.2.2.0..5... ...
+          db   93h,0ECh,0Bh,0F0h,0D8h,0A4h,5h,0D0h,14h,0ECh,13h,0F0h,0D8h,0A4h,0F6h,0D7h;................
+          db   12h,0h,20h,88h,12h,0h,13h,6Ah,10h,0Eh,9Fh,0ECh,0Bh,0F0h,14h,0ECh    ;.. ....j........
+          db   13h,0F0h,0D8h,0A4h,0F9h,0D7h,20h,86h,12h,0h,20h,82h,0h,0Eh,93h,0ECh ;...... ... .....
+          db   0Bh,0F0h,1h,6Eh,20h,0Eh,93h,0ECh,0Bh,0F0h,29h,0ECh,13h,0F0h,14h,0ECh;...n .....).....
+          db   13h,0F0h,0D8h,0A4h,0F2h,0D7h,12h,0h,20h,82h,20h,88h,20h,0Eh,93h,0ECh;........ . . ...
+          db   0Bh,0F0h,0D8h,0A4h,5h,0D0h,14h,0ECh,13h,0F0h,0D8h,0A4h,0F7h,0D7h,12h,0h;................
+          db   20h,98h,12h,0h,22h,0BCh,8h,0D0h,0Eh,50h,0D8h,0A4h,5h,0D0h,0Fh,50h   ; ..."....P.....P
+          db   5Eh,0Ah,0D8h,0B4h,4Ch,0ECh,1Fh,0F0h,10h,0Eh,93h,0ECh,0Bh,0F0h,20h,0Eh;^...L......... .
+          db   9Fh,0ECh,0Bh,0F0h,14h,0ECh,13h,0F0h,0D8h,0A4h,0ECh,0D7h,12h,0h,18h,50h;...............P
+          db   15h,0Ah,0D8h,0A4h,12h,0h,19h,50h,1Dh,0Ah,0D8h,0B4h,31h,8Eh,12h,0h   ;.......P....1...
 
 		ORG 1A00h 
           db   1h,6Ah,20h,0Eh,93h,0ECh,0Bh,0F0h,29h,0ECh,13h,0F0h,13h,6Eh,20h,0Eh  ;.j .....)....n .
@@ -769,43 +1468,87 @@ p__15DA:  movlw  9                         ; entry from: 0EAh
           db   14h,0F0h,12h,0h,3h,0Eh,34h,64h,12h,0h,32h,0ECh,13h,0F0h,25h,0Eh     ;......4d..2...%.
           db   34h,18h,0D8h,0A4h,12h,0h,24h,92h,34h,8Eh,0B5h,0ECh,9h,0F0h,21h,0BAh ;4.....$.4.....!.
           db   0Bh,86h,12h,0h,12h,0h,7h,0Eh,0EAh,6Eh,49h,50h,0E9h,6Eh,13h,50h      ;.........nIP.n.P
-          db   0EEh,6Eh,0E9h,50h,49h,6Eh,12h,0h,23h,0AEh,6h,0D0h,8Eh,0A8h,12h,0h   ;.n.PIn..#.......
-          db   23h,9Eh,0CFh,0Eh,83h,16h,12h,0h,34h,50h,1h,0Ah,0D8h,0A4h,12h,0h     ;#.......4P......
-          db   23h,0BAh,12h,0h,8Eh,0B8h,12h,0h,23h,8Ah,23h,0B6h,5h,0D0h,8Eh,0A2h   ;#.......#.#.....
-          db   12h,0h,2Ah,0B0h,23h,82h,12h,0h,87h,90h,7Dh,0Eh,35h,6Eh,24h,86h      ;..*.#.....}.5n$.
-          db   12h,0h                                                              ;..
+          db   0EEh,6Eh,0E9h,50h,49h,6Eh,12h,0h                                    ;.n.PIn..
+p__2598:  btfss  23h,7,a                   ; entry from: 0B02h
+          bra    p__25A8
+          btfss  PORTB,4,a
+          return 
+          bcf    23h,7,a
+          movlw  0CFh
+          andwf  LATA,a
+          return 
+p__25A8:  movf   34h,W,a                   ; entry from: 259Ah
+          xorlw  1
+          btfss  STATUS,2,a
+          return 
+          btfsc  23h,5,a
+          return 
+          btfsc  PORTB,4,a
+          return 
+          bsf    23h,5,a
+          btfsc  23h,3,a
+          bra    p__25C8
+          btfss  PORTB,1,a
+          return 
+          btfsc  2Ah,0,a
+          bsf    23h,1,a
+          return 
+p__25C8:  bcf    LATE,0,a                  ; entry from: 25BCh
+          movlw  7Dh
+          movwf  35h,a
+          bsf    24h,3,a
+          return 
 
 		ORG 2600h 
-          db   0E9h,6Eh,1h,0Eh,0EAh,6Eh,7h,0Eh,0h,6Eh,0EEh,6Ah,0h,2Eh,0FDh,0D7h    ;.n...n...n.j....
-          db   12h,0h,0E1h,6Eh,1h,0Eh,0EAh,6Eh,0E2h,6Eh,7h,0Eh,2h,6Eh,0EEh,50h     ;...n...n.n...n.P
-          db   0E6h,6Eh,2h,2Eh,0FCh,0D7h,12h,0h,15h,50h,16h,18h,0D8h,0A4h,16h,2Ah  ;.n.......P.....*
-          db   12h,0h,16h,6h,15h,50h,16h,18h,12h,0h,1h,26h,20h,0B8h,1h,2Ah         ;.....P.....& ..*
-          db   20h,98h,1Ah,50h,1h,5Ch,0D8h,0A0h,2h,0D0h,20h,88h,12h,0h,1h,50h      ; ..P.\.... ....P
-          db   12h,0h,20h,0B8h,1h,0Fh,1h,5Ch,20h,98h,0D8h,0B0h,12h,0h,1Ah,24h      ;.. ....\ ......$
-          db   20h,88h,12h,0h,4Eh,0ECh,13h,0F0h,7h,0Eh,16h,6Eh,5h,6Eh,80h,0Eh      ; ...N......n.n..
-          db   93h,0ECh,0Bh,0F0h,23h,0ACh,5h,0D0h,13h,38h,0F0h,0Bh,0E7h,6Eh,23h,9Ch;....#....8...n#.
-          db   7h,0D0h,13h,50h,0Fh,0Bh,0E7h,12h,23h,8Ch,0E1h,2Ah,0D8h,0B4h,0E2h,2Ah;...P....#..*...*
-          db   16h,2Ah,5h,2Eh,0ECh,0D7h,53h,0ECh,13h,0F0h,12h,0h,26h,50h,0E2h,6Eh  ;.*....S.....&P.n
-          db   27h,50h,0E1h,6Eh,12h,0h,0E2h,50h,26h,6Eh,0E1h,50h,27h,6Eh,12h,0h    ;'P.n...P&n.P'n..
-          db   0Ch,0BEh,5h,0D0h,0Fh,0Eh,0Eh,14h,0Ch,24h,0Eh,6Eh,0Ch,8Eh,0Dh,0BEh   ;.........$.n....
-          db   12h,0h,17h,50h,0Eh,14h,0Dh,24h,0Eh,6Eh,0Dh,8Eh,12h,0h,14h,6Eh       ;...P...$.n.....n
-          db   24h,9Ah,99h,0Eh,14h,18h,0D8h,0B4h,10h,0D0h,9Bh,0Eh,14h,18h,0D8h,0B4h;$...............
-          db   0Eh,0D0h,2h,0Eh,0EAh,6Eh,0E9h,6Ah,14h,50h,7h,0Dh,0F3h,50h,0E9h,26h  ;.....n.j.P...P.&
-          db   0D8h,0B0h,0EAh,2Ah,0F4h,50h,0EAh,26h,12h,0h,80h,0Eh,1h,0D0h,90h,0Eh ;...*.P.&........
-          db   0E9h,6Eh,1h,0Eh,0EAh,6Eh,24h,8Ah,12h,0h,8h,50h,0Fh,0Bh,0h,6Eh       ;.n...n$....P...n
-          db   0D8h,0A4h,0Fh,0D0h,11h,50h,1h,0Ah,0D8h,0A4h,0Bh,0D0h,12h,50h,1h,0Ah ;.....P.......P..
-          db   0D8h,0A4h,7h,0D0h,9h,50h,0D8h,0B4h,16h,0D0h,1h,0Ah,0D8h,0B4h,13h,0D0h;.....P..........
-          db   14h,0D0h,0h,50h,0D8h,0A4h,0Bh,0D0h,11h,0AEh,9h,0D0h,12h,0AEh,7h,0D0h;...P............
-          db   9h,50h,0D8h,0B4h,8h,0D0h,0Dh,0Ah,0D8h,0B4h,5h,0D0h,6h,0D0h,0h,50h   ;.P.............P
-          db   9h,18h,0D8h,0A4h,2h,0D0h,20h,98h,12h,0h,20h,88h,12h,0h,20h,9Ch      ;...... ... ... .
-          db   14h,50h,99h,0Ah,0D8h,0B4h,12h,0h,14h,50h,9Bh,0Ah,0D8h,0B4h,12h,0h   ;.P.......P......
-          db   40h,0Eh,14h,5Ch,0D8h,0B0h,20h,8Ch,12h,0h                            ;@..\.. ...
+p__2600:  movwf  FSR0L,a                   ; entry from: 2F98h
+          movlw  1
+          movwf  FSR0H,a
+          movlw  7
+          movwf  0,a
+p__260A:  clrf   POSTINC0,a                ; entry from: 260Eh
+          decfsz 0,a
+          bra    p__260A
+          return 
+
+p__2612:  movwf  FSR1L,a                   ; entry from: 3EFAh,3F12h
+          movlw  1
+          movwf  FSR0H,a
+          movwf  FSR1H,a
+          movlw  7
+          movwf  2,a
+p__261E:  movf   POSTINC0,W,a              ; entry from: 2624h
+          movwf  POSTINC1,a
+          decfsz 2,a
+          bra    p__261E
+          return 
+          db   15h,50h,16h,18h,0D8h,0A4h,16h,2Ah,12h,0h,16h,6h,15h,50h,16h,18h     ;.P.....*.....P..
+          db   12h,0h,1h,26h,20h,0B8h,1h,2Ah,20h,98h,1Ah,50h,1h,5Ch,0D8h,0A0h      ;...& ..* ..P.\..
+          db   2h,0D0h,20h,88h,12h,0h,1h,50h,12h,0h,20h,0B8h,1h,0Fh,1h,5Ch         ;.. ....P.. ....\.
+          db   20h,98h,0D8h,0B0h,12h,0h,1Ah,24h,20h,88h,12h,0h,4Eh,0ECh,13h,0F0h   ; ......$ ...N...
+          db   7h,0Eh,16h,6Eh,5h,6Eh,80h,0Eh,93h,0ECh,0Bh,0F0h,23h,0ACh,5h,0D0h    ;...n.n......#...
+          db   13h,38h,0F0h,0Bh,0E7h,6Eh,23h,9Ch,7h,0D0h,13h,50h,0Fh,0Bh,0E7h,12h  ;.8...n#....P....
+          db   23h,8Ch,0E1h,2Ah,0D8h,0B4h,0E2h,2Ah,16h,2Ah,5h,2Eh,0ECh,0D7h,53h,0ECh;#..*...*.*....S.
+          db   13h,0F0h,12h,0h,26h,50h,0E2h,6Eh,27h,50h,0E1h,6Eh,12h,0h,0E2h,50h   ;....&P.n'P.n...P
+          db   26h,6Eh,0E1h,50h,27h,6Eh,12h,0h,0Ch,0BEh,5h,0D0h,0Fh,0Eh,0Eh,14h    ;&n.P'n..........
+          db   0Ch,24h,0Eh,6Eh,0Ch,8Eh,0Dh,0BEh,12h,0h,17h,50h,0Eh,14h,0Dh,24h     ;.$.n.......P...$
+          db   0Eh,6Eh,0Dh,8Eh,12h,0h,14h,6Eh,24h,9Ah,99h,0Eh,14h,18h,0D8h,0B4h    ;.n.....n$.......
+          db   10h,0D0h,9Bh,0Eh,14h,18h,0D8h,0B4h,0Eh,0D0h,2h,0Eh,0EAh,6Eh,0E9h,6Ah;.............n.j
+          db   14h,50h,7h,0Dh,0F3h,50h,0E9h,26h,0D8h,0B0h,0EAh,2Ah,0F4h,50h,0EAh,26h;.P...P.&...*.P.&
+          db   12h,0h,80h,0Eh,1h,0D0h,90h,0Eh,0E9h,6Eh,1h,0Eh,0EAh,6Eh,24h,8Ah     ;.........n...n$.
+          db   12h,0h,8h,50h,0Fh,0Bh,0h,6Eh,0D8h,0A4h,0Fh,0D0h,11h,50h,1h,0Ah      ;...P...n.....P..
+          db   0D8h,0A4h,0Bh,0D0h,12h,50h,1h,0Ah,0D8h,0A4h,7h,0D0h,9h,50h,0D8h,0B4h;.....P.......P..
+          db   16h,0D0h,1h,0Ah,0D8h,0B4h,13h,0D0h,14h,0D0h,0h,50h,0D8h,0A4h,0Bh,0D0h;...........P....
+          db   11h,0AEh,9h,0D0h,12h,0AEh,7h,0D0h,9h,50h,0D8h,0B4h,8h,0D0h,0Dh,0Ah  ;.........P......
+          db   0D8h,0B4h,5h,0D0h,6h,0D0h,0h,50h,9h,18h,0D8h,0A4h,2h,0D0h,20h,98h   ;.......P...... .
+          db   12h,0h,20h,88h,12h,0h,20h,9Ch,14h,50h,99h,0Ah,0D8h,0B4h,12h,0h      ;.. ... ..P......
+          db   14h,50h,9Bh,0Ah,0D8h,0B4h,12h,0h,40h,0Eh,14h,5Ch,0D8h,0B0h,20h,8Ch  ;.P......@..\.. .
+          db   12h,0h                                                              ;..
 p__277A:  bcf    23h,4,a                   ; entry from: 1D2h
           movlw  16h
           movwf  4Ah,a
           movlb  0Eh
-          bcf    0CEh,1,b                  ; WDTCON1
-          bsf    T2HLT,7,a
+          bcf    0CEh,1,b                  ; PIR4
+          bsf    T2CON,7,a
           return 
           db   16h,0Eh,23h,0A6h,9h,0Eh,4Ah,6Eh,24h,0A2h,23h,88h,3h,0Eh,42h,6Eh     ;..#...Jn$.#...Bn
           db   1Ch,0Eh,28h,6Eh,12h,0h                                              ;..(n..
@@ -818,37 +1561,64 @@ p__277A:  bcf    23h,4,a                   ; entry from: 1D2h
           db   0E6h,6Eh,0E6h,6Eh,0E6h,6Eh,0E6h,6Eh,0E6h,6Eh,0E6h,6Eh,0E6h,6Eh,0E6h,6Eh;.n.n.n.n.n.n.n.n
           db   53h,0ECh,13h,0F0h,12h,0h,2Bh,50h,0Dh,0Ah,0D8h,0A4h,0Fh,0D0h,36h,0Eh ;S.....+P......6.
           db   6h,6Eh,0AAh,0ECh,0h,0F0h,32h,0ECh,0Bh,0F0h,0BDh,8Eh,86h,0EFh,1Dh,0F0h;.n....2.........
-          db   23h,0Eh,0DAh,0EFh,1Bh,0F0h,27h,0Eh,0DAh,0EFh,1Bh,0F0h,43h,6Ah,85h,0ECh;#.....'.....Cj..
-          db   25h,0F0h,43h,80h,0B8h,0EFh,1Bh,0F0h,43h,0A8h,4h,0D0h,43h,98h,0E2h,0ECh;%.C.....C...C...
-          db   25h,0F0h,0Dh,0D0h,43h,0A2h,0Bh,0D0h,20h,86h,43h,0A4h,7h,0D0h,8h,0Eh ;%...C... .C.....
-          db   23h,16h,24h,6Ah,20h,86h,24h,82h,23h,8Ch,34h,6Ah,43h,6Ah,12h,0h      ;#.$j .$.#.4jCj..
-          db   43h,82h,0FDh,0D7h,41h,0Eh,0F7h,6Eh,2Eh,0Eh,0C5h,0D0h,41h,0Eh,0F7h,6Eh;C...A..n....A..n
-          db   3Ch,0Eh,0C1h,0D0h,41h,0Eh,0F7h,6Eh,4Ah,0Eh,0BDh,0D0h,41h,0Eh,0F7h,6Eh;<...A..nJ...A..n
-          db   66h,0Eh,0B9h,0D0h,41h,0Eh,0F7h,6Eh,74h,0Eh,0B5h,0D0h,41h,0Eh,0F7h,6Eh;f...A..nt...A..n
-          db   82h,0Eh,0B1h,0D0h,42h,0Eh,0F7h,6Eh,38h,0Eh,0ADh,0D0h,42h,0Eh,0F7h,6Eh;....B..n8...B..n
-          db   46h,0Eh,0A9h,0D0h,41h,0Eh,0F7h,6Eh,0ACh,0Eh,0A5h,0D0h,43h,0Eh,0F7h,6Eh;F...A..n....C..n
-          db   0Ah,0Eh,0A1h,0D0h,41h,0Eh,0F7h,6Eh,0BAh,0Eh,9Dh,0D0h,43h,0Eh,0F7h,6Eh;....A..n....C..n
-          db   42h,0Eh,99h,0D0h,42h,0Eh,0F7h,6Eh,0D2h,0Eh,95h,0D0h,41h,0Eh,0F7h,6Eh;B...B..n....A..n
-          db   0C8h,0Eh,91h,0D0h,43h,0Eh,0F7h,6Eh,0A4h,0Eh,8Dh,0D0h,43h,0Eh,0F7h,6Eh;....C..n....C..n
-          db   7Ah,0Eh,89h,0D0h,41h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A0h,79h,0Eh,4Fh,6Eh ;z...A..n..*.y.On
-          db   0D6h,0Eh,81h,0D0h,41h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B0h,79h,0Eh,4Fh,6Eh;....A..n..*.y.On
-          db   0E4h,0Eh,79h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A2h,79h,0Eh,4Fh,6Eh;..y.B..n..*.y.On
-          db   0E0h,0Eh,71h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B2h,79h,0Eh,4Fh,6Eh;..q.B..n..*.y.On
-          db   0EEh,0Eh,69h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A4h,79h,0Eh,4Fh,6Eh;..i.B..n..*.y.On
-          db   1Ch,0Eh,61h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B4h,79h,0Eh,4Fh,6Eh ;..a.B..n..*.y.On
-          db   2Ah,0Eh,59h,0D0h,43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0BEh,79h,0Eh,4Fh,6Eh ;*.Y.C..n..*.y.On
-          db   18h,0Eh,51h,0D0h,43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0AEh,79h,0Eh,4Fh,6Eh ;..Q.C..n..*.y.On
-          db   26h,0Eh,49h,0D0h,43h,0Eh,0F7h,6Eh,34h,0Eh,45h,0D0h,43h,0Eh,0F7h,6Eh ;&.I.C..n4.E.C..n
-          db   0FFh,0Eh,2Ah,0B6h,79h,0Eh,4Fh,6Eh,0B2h,0Eh,3Dh,0D0h,43h,0Eh,0F7h,6Eh;..*.y.On..=.C..n
-          db   0FFh,0Eh,2Ah,0A6h,79h,0Eh,4Fh,6Eh,0C0h,0Eh,35h,0D0h,43h,0Eh,0F7h,6Eh;..*.y.On..5.C..n
-          db   0FFh,0Eh,2Ah,0BCh,79h,0Eh,4Fh,6Eh,96h,0Eh,2Dh,0D0h,43h,0Eh,0F7h,6Eh ;..*.y.On..-.C..n
-          db   0FFh,0Eh,2Ah,0ACh,79h,0Eh,4Fh,6Eh,88h,0Eh,25h,0D0h,43h,0Eh,0F7h,6Eh ;..*.y.On..%.C..n
-          db   0FFh,0Eh,2Ah,0BAh,79h,0Eh,4Fh,6Eh,5Eh,0Eh,1Dh,0D0h,43h,0Eh,0F7h,6Eh ;..*.y.On^...C..n
-          db   0FFh,0Eh,2Ah,0AAh,79h,0Eh,4Fh,6Eh,50h,0Eh,15h,0D0h,41h,0Eh,0F7h,6Eh ;..*.y.OnP...A..n
-          db   0F2h,0Eh,11h,0D0h,42h,0Eh,0F7h,6Eh,0h,0Eh,0Dh,0D0h,42h,0Eh,0F7h,6Eh ;....B..n....B..n
-          db   0Eh,0Eh,9h,0D0h,42h,0Eh,0F7h,6Eh,7Eh,0Eh,5h,0D0h,2Fh,0Eh,46h,6Eh    ;....B..n~.../.Fn
-          db   42h,0Eh,0F7h,6Eh,0A8h,0Eh,72h,0ECh,1h,0F0h,31h,0D7h,0E7h,0ECh,1Fh,0F0h;B..n..r...1.....
-          db   2Eh,0D7h                                                            ;..
+          db   23h,0Eh,0DAh,0EFh,1Bh,0F0h,27h,0Eh,0DAh,0EFh,1Bh,0F0h               ;#.....'.....
+p__287C:  clrf   43h,a                     ; entry from: 0C0Ch
+          call   p__4B0A
+          bsf    43h,0,a
+          goto   p__3770
+p__2888:  btfss  43h,4,a                   ; entry from: 0C28h
+          bra    p__2894
+          bcf    43h,4,a
+          call   p__4BC4
+          bra    p__28AE
+p__2894:  btfss  43h,1,a                   ; entry from: 288Ah
+          bra    p__28AE
+          bsf    20h,3,a
+          btfss  43h,2,a
+          bra    p__28AC
+p__289E:  movlw  8                         ; entry from: 481Eh
+          andwf  23h,a
+          clrf   24h,a
+          bsf    20h,3,a
+          bsf    24h,1,a
+          bsf    23h,6,a
+          clrf   34h,a
+p__28AC:  clrf   43h,a                     ; entry from: 289Ch
+
+p__28AE:  return                           ; entry from: 2896h,2892h,2A4Ah,390Ch
+          db   43h,82h,0FDh,0D7h                                                   ;C...
+p__28B4:  movlw  41h                       ; entry from: 340Ch
+          movwf  TBLPTRH,a
+          movlw  2Eh
+          bra    p__2A46
+          db   41h,0Eh,0F7h,6Eh,3Ch,0Eh,0C1h,0D0h,41h,0Eh,0F7h,6Eh,4Ah,0Eh,0BDh,0D0h;A..n<...A..nJ...
+          db   41h,0Eh,0F7h,6Eh,66h,0Eh,0B9h,0D0h,41h,0Eh,0F7h,6Eh,74h,0Eh,0B5h,0D0h;A..nf...A..nt...
+          db   41h,0Eh,0F7h,6Eh,82h,0Eh,0B1h,0D0h,42h,0Eh,0F7h,6Eh,38h,0Eh,0ADh,0D0h;A..n....B..n8...
+          db   42h,0Eh,0F7h,6Eh,46h,0Eh,0A9h,0D0h,41h,0Eh,0F7h,6Eh,0ACh,0Eh,0A5h,0D0h;B..nF...A..n....
+          db   43h,0Eh,0F7h,6Eh,0Ah,0Eh,0A1h,0D0h,41h,0Eh,0F7h,6Eh,0BAh,0Eh,9Dh,0D0h;C..n....A..n....
+          db   43h,0Eh,0F7h,6Eh,42h,0Eh,99h,0D0h,42h,0Eh,0F7h,6Eh,0D2h,0Eh,95h,0D0h;C..nB...B..n....
+          db   41h,0Eh,0F7h,6Eh,0C8h,0Eh,91h,0D0h,43h,0Eh,0F7h,6Eh,0A4h,0Eh,8Dh,0D0h;A..n....C..n....
+          db   43h,0Eh,0F7h,6Eh,7Ah,0Eh,89h,0D0h,41h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A0h;C..nz...A..n..*.
+          db   79h,0Eh,4Fh,6Eh,0D6h,0Eh,81h,0D0h,41h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B0h;y.On....A..n..*.
+          db   79h,0Eh,4Fh,6Eh,0E4h,0Eh,79h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A2h;y.On..y.B..n..*.
+          db   79h,0Eh,4Fh,6Eh,0E0h,0Eh,71h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B2h;y.On..q.B..n..*.
+          db   79h,0Eh,4Fh,6Eh,0EEh,0Eh,69h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A4h;y.On..i.B..n..*.
+          db   79h,0Eh,4Fh,6Eh,1Ch,0Eh,61h,0D0h,42h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B4h ;y.On..a.B..n..*.
+          db   79h,0Eh,4Fh,6Eh,2Ah,0Eh,59h,0D0h,43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0BEh ;y.On*.Y.C..n..*.
+          db   79h,0Eh,4Fh,6Eh,18h,0Eh,51h,0D0h,43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0AEh ;y.On..Q.C..n..*.
+          db   79h,0Eh,4Fh,6Eh,26h,0Eh,49h,0D0h,43h,0Eh,0F7h,6Eh,34h,0Eh,45h,0D0h  ;y.On&.I.C..n4.E.
+          db   43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0B6h,79h,0Eh,4Fh,6Eh,0B2h,0Eh,3Dh,0D0h;C..n..*.y.On..=.
+          db   43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0A6h,79h,0Eh,4Fh,6Eh,0C0h,0Eh,35h,0D0h;C..n..*.y.On..5.
+          db   43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0BCh,79h,0Eh,4Fh,6Eh,96h,0Eh,2Dh,0D0h ;C..n..*.y.On..-.
+          db   43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0ACh,79h,0Eh,4Fh,6Eh,88h,0Eh,25h,0D0h ;C..n..*.y.On..%.
+          db   43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0BAh,79h,0Eh,4Fh,6Eh,5Eh,0Eh,1Dh,0D0h ;C..n..*.y.On^...
+          db   43h,0Eh,0F7h,6Eh,0FFh,0Eh,2Ah,0AAh,79h,0Eh,4Fh,6Eh,50h,0Eh,15h,0D0h ;C..n..*.y.OnP...
+          db   41h,0Eh,0F7h,6Eh,0F2h,0Eh,11h,0D0h,42h,0Eh,0F7h,6Eh,0h,0Eh,0Dh,0D0h ;A..n....B..n....
+          db   42h,0Eh,0F7h,6Eh,0Eh,0Eh,9h,0D0h,42h,0Eh,0F7h,6Eh,7Eh,0Eh,5h,0D0h   ;B..n....B..n~...
+          db   2Fh,0Eh,46h,6Eh,42h,0Eh,0F7h,6Eh,0A8h,0Eh                           ;/.FnB..n..
+p__2A46:  call   p___2E4                   ; entry from: 28BAh
+          bra    p__28AE
+          db   0E7h,0ECh,1Fh,0F0h,2Eh,0D7h                                         ;......
 
 		ORG 2B00h 
           db   4h,0Eh,95h,0D0h,0Ah,0Eh,22h,0A4h,0Bh,0Eh,91h,0D0h,24h,0Eh,8Fh,0D0h  ;......".....$...
@@ -871,85 +1641,360 @@ p__277A:  bcf    23h,4,a                   ; entry from: 1D2h
           db   1Dh,0F0h,21h,0A8h,3h,0D0h,2Eh,0Eh,46h,6Eh,49h,0D6h,25h,8Ah,48h,0D6h ;..!.....FnI.%.H.
           db   2Ah,0ECh,26h,0F0h,21h,0B8h,43h,0D6h,43h,84h,25h,8Ah,41h,0D6h,0DAh,0EFh;*.&.!.C.C.%.A...
           db   1Bh,0F0h,0AAh,0ECh,0h,0F0h,0Fh,1h,9Dh,9Fh,9Bh,0ECh,1h,0F0h,0Fh,1h   ;................
-          db   20h,9Fh,9Bh,0ECh,1h,0F0h,85h,82h,5h,0D0h,0AAh,0ECh,0h,0F0h,0Fh,1h   ; ...............
-          db   9Dh,9Fh,85h,92h,94h,0ECh,1h,0F0h,0Fh,1h,20h,8Fh,9Bh,0ECh,1h,0F0h    ;.......... .....
-          db   0Fh,1h,9Dh,8Fh,9Bh,0ECh,1h,0F0h,0BDh,8Eh,20h,86h,12h,0h             ;.......... ...
+          db   20h,9Fh,9Bh,0ECh,1h,0F0h,85h,82h,5h,0D0h                            ; .........
+p__2C4A:  call   p___154                   ; entry from: 0B2Ch
+          movlb  0Fh
+          bcf    9Dh,7,b                   ; RC1STA
+          bcf    LATC,1,a
+          call   p___328
+          movlb  0Fh
+          bsf    20h,7,b                   ; WPUC
+          call   p___336
+          movlb  0Fh
+          bsf    9Dh,7,b                   ; RC1STA
+          call   p___336
+          bsf    T2CON,7,a
+          bsf    20h,3,a
+          return 
 
 		ORG 2D00h 
           db   2Ah,0ECh,26h,0F0h,21h,0B8h,57h,0EFh,14h,0F0h,0Fh,0D8h,2Fh,0Eh,46h,6Eh;*.&.!.W...../.Fn
           db   21h,0B8h,5h,0D0h,41h,0Eh,0F7h,6Eh,90h,0Eh,23h,0EFh,15h,0F0h,27h,0Eh ;!...A..n..#...'.
           db   57h,6Eh,0AFh,0ECh,25h,0F0h,57h,0EFh,14h,0F0h,0AAh,0ECh,0h,0F0h,7Bh,0ECh;Wn..%.W.......{.
-          db   0Bh,0F0h,21h,0BAh,89h,0EFh,1Dh,0F0h,0BDh,8Eh,12h,0h,24h,0A0h,19h,0D0h;..!.........$...
-          db   2Bh,50h,10h,0Ah,0D8h,0A4h,3h,0D0h,1h,0Eh,50h,6Eh,12h,0h,50h,50h     ;+P........Pn..PP
-          db   1h,0Ah,0D8h,0A4h,0Eh,0D0h,2Bh,50h,0A4h,0Ah,0D8h,0A4h,3h,0D0h,2h,0Eh ;......+P........
-          db   50h,6Eh,12h,0h,2Bh,50h,0A3h,0Ah,0D8h,0A4h,3h,0D0h,3h,0Eh,50h,6Eh    ;Pn..+P........Pn
-          db   12h,0h,50h,6Ah,12h,0h,0Eh,50h,17h,0Ah,0D8h,0A4h,7h,0D0h,0Fh,50h     ;..Pj...P.......P
-          db   0E6h,0Ah,0D8h,0A4h,3h,0D0h,27h,0ECh,17h,0F0h,12h,0h,0Eh,50h,0Bh,0Ah ;......'......P..
-          db   0D8h,0A4h,22h,0D0h,0Fh,50h,95h,0Ah,0D8h,0A4h,1Eh,0D0h,1h,0Eh,16h,6Eh;.."..P.........n
-          db   50h,50h,2h,0Ah,0D8h,0A4h,6h,0D0h,0Fh,0Eh,13h,6Eh,0h,0Eh,9Fh,0ECh    ;PP.........n....
-          db   0Bh,0F0h,9h,0D0h,50h,50h,3h,0Ah,0D8h,0A4h,0Bh,0D0h,1h,0Eh,13h,6Eh   ;....PP.........n
-          db   0h,0Eh,9Fh,0ECh,0Bh,0F0h,16h,6h,0Fh,0Eh,13h,6Eh,0h,0Eh,9Fh,0ECh     ;...........n....
-          db   0Bh,0F0h,0h,0Eh,50h,6Eh,12h,0h,0Eh,50h,0D8h,0A4h,28h,0D0h,0Fh,50h   ;....Pn...P..(..P
-          db   0EEh,0Ah,0D8h,0A4h,24h,0D0h,0h,0Eh,16h,6Eh,0h,0Eh,93h,0ECh,0Bh,0F0h ;....$....n......
-          db   0Fh,0Ah,0D8h,0A4h,12h,0h,16h,2Ah,0h,0Eh,93h,0ECh,0Bh,0F0h,0Fh,0Ah   ;.......*........
-          db   0D8h,0A4h,5h,0D0h,13h,6Ah,0h,0Eh,9Fh,0ECh,0Bh,0F0h,9h,0D0h,13h,50h  ;.....j.........P
-          db   1h,0Ah,0D8h,0A4h,12h,0h,2h,0Eh,13h,6Eh,0h,0Eh,9Fh,0ECh,0Bh,0F0h     ;.........n......
-          db   16h,6h,13h,6Ah,0h,0Eh,9Fh,0ECh,0Bh,0F0h,21h,82h,12h,0h,21h,0A2h     ;...j......!...!.
-          db   12h,0h,0Eh,50h,0D8h,0A4h,12h,0h,0Fh,50h,77h,0Ah,0D8h,0A4h,12h,0h    ;...P.....Pw.....
-          db   80h,0ECh,17h,0F0h,0C8h,0ECh,17h,0F0h,20h,96h,21h,92h,12h,0h,0h,0Eh  ;........ .!.....
-          db   16h,6Eh,0h,0Eh,93h,0ECh,0Bh,0F0h,0Fh,0Ah,0D8h,0A4h,12h,0h,16h,2Ah   ;.n.............*
-          db   0h,0Eh,93h,0ECh,0Bh,0F0h,0Fh,0Ah,0D8h,0A4h,4h,0D0h,4Bh,0ECh,17h,0F0h;............K...
-          db   1h,0Eh,7h,0D0h,13h,50h,1h,0Ah,0D8h,0A4h,12h,0h,4Bh,0ECh,17h,0F0h    ;.....P......K...
-          db   2h,0Eh,16h,6h,13h,6Eh,20h,0Eh,9Fh,0ECh,0Bh,0F0h,14h,0Eh,0Eh,6Eh     ;.....n ........n
-          db   0F5h,0Eh,0Fh,6Eh,12h,0h,0Ah,0Eh,16h,6Eh,0Fh,0Eh,13h,6Eh,20h,0Eh     ;...n.....n...n .
-          db   9Fh,0ECh,0Bh,0F0h,16h,6h,20h,0Eh,9Fh,0ECh,0Bh,0F0h,16h,6h,20h,0Eh   ;...... ....... .
-          db   9Fh,0ECh,0Bh,0F0h,16h,6h,20h,0Eh,9Fh,0ECh,0Bh,0F0h,16h,6h,20h,0Eh   ;...... ....... .
-          db   9Fh,0ECh,0Bh,0F0h,16h,6h,20h,0Eh,9Fh,0ECh,0Bh,0F0h,16h,6h,3h,0Eh    ;...... .........
-          db   13h,6Eh,20h,0Eh,9Fh,0ECh,0Bh,0F0h,16h,6h,5h,0Eh,13h,6Eh,20h,0Eh     ;.n ..........n .
-          db   9Fh,0ECh,0Bh,0F0h,16h,6h,0Fh,0Eh,13h,6Eh,20h,0Eh,9Fh,0ECh,0Bh,0F0h  ;.........n .....
-          db   16h,6h,1h,0Eh,13h,6Eh,20h,0Eh,9Fh,0ECh,0Bh,0F0h,12h,0h              ;.....n .......
+          db   0Bh,0F0h,21h,0BAh,89h,0EFh,1Dh,0F0h,0BDh,8Eh,12h,0h                 ;..!.........
+p__2D3C:  btfss  24h,0,a                   ; entry from: 0C44h
+          bra    p__2D72
+          movf   2Bh,W,a
+          xorlw  10h
+          btfss  STATUS,2,a
+          bra    p__2D4E
+          movlw  1
+          movwf  50h,a
+          return 
+p__2D4E:  movf   50h,W,a                   ; entry from: 2D46h
+          xorlw  1
+          btfss  STATUS,2,a
+          bra    p__2D72
+          movf   2Bh,W,a
+          xorlw  0A4h
+          btfss  STATUS,2,a
+          bra    p__2D64
+          movlw  2
+          movwf  50h,a
+          return 
+p__2D64:  movf   2Bh,W,a                   ; entry from: 2D5Ch
+          xorlw  0A3h
+          btfss  STATUS,2,a
+          bra    p__2D72
+          movlw  3
+          movwf  50h,a
+          return 
+
+p__2D72:  clrf   50h,a                     ; entry from: 2D3Eh,2D54h,2D6Ah
+          return 
+p__2D76:  movf   0Eh,W,a                   ; entry from: 0D58h
+          xorlw  17h
+          btfss  STATUS,2,a
+          bra    p__2D8C
+          movf   0Fh,W,a
+          xorlw  0E6h
+          btfss  STATUS,2,a
+          bra    p__2D8C
+          call   p__2E4E
+          return 
+
+p__2D8C:  movf   0Eh,W,a                   ; entry from: 2D7Ch,2D84h
+          xorlw  0Bh
+          btfss  STATUS,2,a
+          bra    p__2DD8
+          movf   0Fh,W,a
+          xorlw  95h
+          btfss  STATUS,2,a
+          bra    p__2DD8
+          movlw  1
+          movwf  16h,a
+          movf   50h,W,a
+          xorlw  2
+          btfss  STATUS,2,a
+          bra    p__2DB4
+          movlw  0Fh
+          movwf  13h,a
+          movlw  0
+          call   p__173E
+          bra    p__2DC6
+p__2DB4:  movf   50h,W,a                   ; entry from: 2DA6h
+          xorlw  3
+          btfss  STATUS,2,a
+          bra    p__2DD2
+          movlw  1
+          movwf  13h,a
+          movlw  0
+          call   p__173E
+p__2DC6:  decf   16h,a                     ; entry from: 2DB2h
+          movlw  0Fh
+          movwf  13h,a
+          movlw  0
+          call   p__173E
+p__2DD2:  movlw  0                         ; entry from: 2DBAh
+          movwf  50h,a
+          return 
+
+p__2DD8:  movf   0Eh,W,a                   ; entry from: 2D92h,2D9Ah
+          btfss  STATUS,2,a
+          bra    p__2E2E
+          movf   0Fh,W,a
+          xorlw  0EEh
+          btfss  STATUS,2,a
+          bra    p__2E2E
+          movlw  0
+          movwf  16h,a
+          movlw  0
+          call   p__1726
+          xorlw  0Fh
+          btfss  STATUS,2,a
+          return 
+          incf   16h,a
+          movlw  0
+          call   p__1726
+          xorlw  0Fh
+          btfss  STATUS,2,a
+          bra    p__2E0E
+          clrf   13h,a
+          movlw  0
+          call   p__173E
+          bra    p__2E20
+p__2E0E:  movf   13h,W,a                   ; entry from: 2E02h
+          xorlw  1
+          btfss  STATUS,2,a
+          return 
+          movlw  2
+          movwf  13h,a
+          movlw  0
+          call   p__173E
+p__2E20:  decf   16h,a                     ; entry from: 2E0Ch
+          clrf   13h,a
+          movlw  0
+          call   p__173E
+          bsf    21h,1,a
+          return 
+
+p__2E2E:  btfss  21h,1,a                   ; entry from: 2DDCh,2DE4h
+          return 
+          movf   0Eh,W,a
+          btfss  STATUS,2,a
+          return 
+          movf   0Fh,W,a
+          xorlw  77h
+          btfss  STATUS,2,a
+          return 
+          call   p__2F00
+          call   p__2F90
+          bcf    20h,3,a
+          bcf    21h,1,a
+          return 
+p__2E4E:  movlw  0                         ; entry from: 2D86h
+          movwf  16h,a
+          movlw  0
+          call   p__1726
+          xorlw  0Fh
+          btfss  STATUS,2,a
+          return 
+          incf   16h,a
+          movlw  0
+          call   p__1726
+          xorlw  0Fh
+          btfss  STATUS,2,a
+          bra    p__2E74
+          call   p__2E96
+          movlw  1
+          bra    p__2E82
+p__2E74:  movf   13h,W,a                   ; entry from: 2E6Ah
+          xorlw  1
+          btfss  STATUS,2,a
+          return 
+          call   p__2E96
+          movlw  2
+p__2E82:  decf   16h,a                     ; entry from: 2E72h
+          movwf  13h,a
+          movlw  20h
+          call   p__173E
+          movlw  14h
+          movwf  0Eh,a
+          movlw  0F5h
+          movwf  0Fh,a
+          return 
+
+p__2E96:  movlw  0Ah                       ; entry from: 2E7Ch,2E6Ch
+          movwf  16h,a
+          movlw  0Fh
+          movwf  13h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  3
+          movwf  13h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  5
+          movwf  13h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  0Fh
+          movwf  13h,a
+          movlw  20h
+          call   p__173E
+          decf   16h,a
+          movlw  1
+          movwf  13h,a
+          movlw  20h
+          call   p__173E
+          return 
 
 		ORG 2F00h 
-          db   27h,0D8h,6h,6Eh,3Bh,0ECh,0Ah,0F0h,0h,0ECh,9h,0F0h,21h,0BAh,19h,0D0h ;'..n;.......!...
-          db   4h,0Eh,0EAh,6Eh,0Eh,0Eh,0E9h,6Eh,0FFh,0Eh,0EDh,6Eh,80h,0Eh,81h,6Eh  ;...n...n...n...n
-          db   0Bh,0Eh,6h,6Eh,64h,0ECh,8h,0F0h,0EDh,6Eh,6h,2Eh,0FBh,0D7h,20h,9Ah   ;...nd....n.... .
-          db   64h,0ECh,8h,0F0h,0FFh,0Eh,0EDh,6Eh,0FFh,0Eh,0EDh,6Eh,0FFh,0Eh,0EDh,6Eh;d......n...n...n
-          db   12h,0h,42h,0Eh,0F7h,6Eh,0A8h,0Eh,4Fh,6Ah,72h,0ECh,1h,0F0h,12h,0h    ;..B..n..Ojr.....
-          db   21h,98h,1h,1h,21h,39h,0Fh,0Bh,9h,0Ah,0D8h,0B4h,16h,0D0h,20h,51h     ;!...!9........ Q
-          db   0Fh,0Bh,0Ah,0Dh,20h,39h,0Fh,0Bh,0F3h,26h,0D8h,0A4h,3h,0D0h,26h,39h  ;.... 9...&....&9
-          db   0Fh,0Bh,12h,0h,0F3h,50h,1h,0Ah,0D8h,0A4h,7h,0D0h,26h,39h,0Fh,0Bh    ;.....P......&9..
-          db   0Ah,0Dh,25h,51h,0Fh,0Bh,0F3h,24h,12h,0h,0h,0Eh,21h,88h,12h,0h       ;..%Q...$....!...
-          db   0A8h,0ECh,17h,0F0h,3h,6Eh,20h,0Eh,0h,0ECh,13h,0F0h,21h,0B8h,12h,0h  ;.....n .....!...
-          db   3h,2Ah,64h,0Eh,3h,60h,12h,0h,0Ah,0Eh,3h,60h,3h,0D0h,3h,38h          ;.*d..`.....`...8
-          db   26h,6Fh,12h,0h,0h,6Ah,9h,0Eh,3h,64h,4h,0D0h,0h,2Ah,0Ah,0Eh          ;&o...j...d...*..
-          db   3h,5Eh,0F9h,0D7h,0h,38h,26h,6Fh,3h,50h,25h,6Fh,10h,0Eh,20h,6Fh      ;.^...8&o.P%o.. o
-          db   12h,0h,0Dh,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0AAh,0Ah,0D8h,0A4h;................
-          db   3Ah,0D0h,55h,0ECh,0Bh,0F0h,6Ch,0ECh,0Ah,0F0h,39h,0ECh,8h,0F0h,21h,0BAh;:.U...l...9...!.
-          db   2Bh,0EFh,0Bh,0F0h,5h,0Eh,0E2h,6Eh,0E1h,6Ah,0E6h,50h,0FFh,0Ah,0D8h,0A4h;+......n.j.P....
-          db   2h,0D0h,0FFh,0Eh,29h,0D0h,0AAh,0Eh,0E9h,0ECh,0Ah,0F0h,1h,0Eh,0E1h,6Eh;....)..........n
-          db   14h,0Eh,1h,6Eh,0E6h,50h,0E9h,0ECh,0Ah,0F0h,1h,2Eh,0FBh,0D7h,0E3h,0ECh;...n.P..........
-          db   0Ah,0F0h,0h,50h,55h,0Ah,0D8h,0B4h,6h,0D0h,0h,50h,0CCh,0Ah,0D8h,0A4h ;...PU......P....
-          db   12h,0D0h,0CCh,0Eh,11h,0D0h,1h,0Eh,0E1h,6Eh,14h,0Eh,1h,6Eh,0E3h,0ECh ;.........n...n..
-          db   0Ah,0F0h,0E6h,6Eh,1h,2Eh,0FBh,0D7h,0B5h,0ECh,9h,0F0h,21h,0BAh,2Bh,0EFh;...n........!.+.
-          db   0Bh,0F0h,0Dh,0Eh,1h,0D0h,0h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh;................
-          db   5h,0F0h,83h,96h,8Ch,0ECh,1h,0F0h,8Ch,0ECh,1h,0F0h,83h,86h,0Eh,0Eh   ;................
-          db   0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h,0Fh,0Eh,0E9h,0ECh,0Ah,0F0h,7h,0EEh;................
-          db   10h,0F0h,0E3h,0ECh,0Ah,0F0h,0FFh,0Ah,0D8h,0A4h,8h,0D0h,7h,0Eh,1h,6Eh;...............n
-          db   0EEh,50h,0E9h,0ECh,0Ah,0F0h,1h,2Eh,0FBh,0D7h,0F3h,0D7h,0Fh,0Eh,0E9h,0ECh;.P..............
-          db   0Ah,0F0h,1h,0Eh,31h,0BAh,2h,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h ;....1...........
-          db   14h,0Eh,0E9h,0ECh,0Ah,0F0h,31h,0BCh,3h,0D0h,31h,8Ch,80h,0EFh,5h,0F0h;......1...1.....
-          db   31h,9Ch,80h,0EFh,5h,0F0h,11h,0Eh,0E9h,0ECh,0Ah,0F0h,9h,0Eh,48h,0ECh ;1.............H.
-          db   9h,0F0h,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0AAh,0Ah,0D8h,0A4h,1h,0D0h;................
-          db   9h,0D0h,9h,0Eh,7Eh,6Eh,0h,50h,4Fh,0ECh,9h,0F0h,9Bh,0ECh,1h,0F0h     ;....~n.PO.......
-          db   0EDh,0ECh,0Ah,0F0h,11h,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h      ;..............
-p__30FE:  btfss  PORTD,5,a                 ; entry from: 1D8h
+p__2F00:  rcall  p__2F50                   ; entry from: 2E40h
+          movwf  6,a
+          call   p__1476
+          call   p__1200
+          btfsc  21h,5,a
+          bra    p__2F42
+          movlw  4
+          movwf  FSR0H,a
+          movlw  0Eh
+          movwf  FSR0L,a
+          movlw  0FFh
+          movwf  POSTDEC0,a
+          movlw  80h
+          movwf  NVMCON1,a
+          movlw  0Bh
+          movwf  6,a
+p__2F24:  call   p__10C8                   ; entry from: 2F2Ch
+          movwf  POSTDEC0,a
+          decfsz 6,a
+          bra    p__2F24
+          bcf    20h,5,a
+          call   p__10C8
+          movlw  0FFh
+          movwf  POSTDEC0,a
+          movlw  0FFh
+          movwf  POSTDEC0,a
+          movlw  0FFh
+          movwf  POSTDEC0,a
+          return 
+p__2F42:  movlw  42h                       ; entry from: 2F0Eh
+          movwf  TBLPTRH,a
+          movlw  0A8h
+          clrf   4Fh,a
+          call   p___2E4
+          return 
+
+p__2F50:  bcf    21h,4,a                   ; entry from: 2F90h,2F00h
+          movlb  1
+          swapf  21h,W,b
+          andlw  0Fh
+          xorlw  9
+          btfsc  STATUS,2,a
+          bra    p__2F8A
+          movf   20h,W,b
+          andlw  0Fh
+          mullw  0Ah
+          swapf  20h,W,b
+          andlw  0Fh
+          addwf  PRODL,a
+          btfss  STATUS,2,a
+          bra    p__2F74
+          swapf  26h,W,b
+          andlw  0Fh
+          return 
+p__2F74:  movf   PRODL,W,a                 ; entry from: 2F6Ch
+          xorlw  1
+          btfss  STATUS,2,a
+          bra    p__2F8A
+          swapf  26h,W,b
+          andlw  0Fh
+          mullw  0Ah
+          movf   25h,W,b
+          andlw  0Fh
+          addwf  PRODL,W,a
+          return 
+
+p__2F8A:  movlw  0                         ; entry from: 2F5Ch,2F7Ah
+          bsf    21h,4,a
+          return 
+p__2F90:  call   p__2F50                   ; entry from: 2E44h
+          movwf  3,a
+          movlw  20h
+          call   p__2600
+          btfsc  21h,4,a
+          return 
+          incf   3,a
+          movlw  64h
+          cpfslt 3,a
+          return 
+          movlw  0Ah
+          cpfslt 3,a
+          bra    p__2FB4
+          swapf  3,W,a
+          movwf  26h,b                     ; CLCIN7PPS
+          return 
+p__2FB4:  clrf   0,a                       ; entry from: 2FACh
+p__2FB6:  movlw  9                         ; entry from: 2FC2h
+          cpfsgt 3,a
+          bra    p__2FC4
+          incf   0,a
+          movlw  0Ah
+          subwf  3,a
+          bra    p__2FB6
+p__2FC4:  swapf  0,W,a                     ; entry from: 2FBAh
+          movwf  26h,b                     ; CLCIN7PPS
+          movf   3,W,a
+          movwf  25h,b                     ; CLCIN6PPS
+          movlw  10h
+          movwf  20h,b                     ; CLCIN1PPS
+          return 
+          db   0Dh,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0AAh,0Ah,0D8h,0A4h,3Ah,0D0h;..............:.
+          db   55h,0ECh,0Bh,0F0h,6Ch,0ECh,0Ah,0F0h,39h,0ECh,8h,0F0h,21h,0BAh,2Bh,0EFh;U...l...9...!.+.
+          db   0Bh,0F0h,5h,0Eh,0E2h,6Eh,0E1h,6Ah,0E6h,50h,0FFh,0Ah,0D8h,0A4h,2h,0D0h;.....n.j.P......
+          db   0FFh,0Eh,29h,0D0h,0AAh,0Eh,0E9h,0ECh,0Ah,0F0h,1h,0Eh,0E1h,6Eh,14h,0Eh;..)..........n..
+          db   1h,6Eh,0E6h,50h,0E9h,0ECh,0Ah,0F0h,1h,2Eh,0FBh,0D7h,0E3h,0ECh,0Ah,0F0h;.n.P............
+          db   0h,50h,55h,0Ah,0D8h,0B4h,6h,0D0h,0h,50h,0CCh,0Ah,0D8h,0A4h,12h,0D0h ;.PU......P......
+          db   0CCh,0Eh,11h,0D0h,1h,0Eh,0E1h,6Eh,14h,0Eh,1h,6Eh,0E3h,0ECh,0Ah,0F0h ;.......n...n....
+          db   0E6h,6Eh,1h,2Eh,0FBh,0D7h,0B5h,0ECh,9h,0F0h,21h,0BAh,2Bh,0EFh,0Bh,0F0h;.n........!.+...
+          db   0Dh,0Eh,1h,0D0h,0h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh,5h,0F0h ;................
+          db   83h,96h,8Ch,0ECh,1h,0F0h,8Ch,0ECh,1h,0F0h,83h,86h,0Eh,0Eh,0E9h,0ECh ;................
+          db   0Ah,0F0h,80h,0EFh,5h,0F0h,0Fh,0Eh,0E9h,0ECh,0Ah,0F0h,7h,0EEh,10h,0F0h;................
+          db   0E3h,0ECh,0Ah,0F0h,0FFh,0Ah,0D8h,0A4h,8h,0D0h,7h,0Eh,1h,6Eh,0EEh,50h;.............n.P
+          db   0E9h,0ECh,0Ah,0F0h,1h,2Eh,0FBh,0D7h,0F3h,0D7h,0Fh,0Eh,0E9h,0ECh,0Ah,0F0h;................
+          db   1h,0Eh,31h,0BAh,2h,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h,14h,0Eh  ;..1.............
+          db   0E9h,0ECh,0Ah,0F0h,31h,0BCh,3h,0D0h,31h,8Ch,80h,0EFh,5h,0F0h,31h,9Ch;....1...1.....1.
+          db   80h,0EFh,5h,0F0h,11h,0Eh,0E9h,0ECh,0Ah,0F0h,9h,0Eh,48h,0ECh,9h,0F0h ;............H...
+          db   0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0AAh,0Ah,0D8h,0A4h,1h,0D0h,9h,0D0h;................
+          db   9h,0Eh,7Eh,6Eh,0h,50h,4Fh,0ECh,9h,0F0h,9Bh,0ECh,1h,0F0h,0EDh,0ECh   ;..~n.PO.........
+          db   0Ah,0F0h,11h,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h                ;............
+p__30FE:  btfss  PORTC,5,a                 ; entry from: 1D8h
           bra    p__310A
-          movlw  42h                       ; H ADDR 
-          movwf  TBLPTRH,a                 ; tblptrh 
+          movlw  42h
+          movwf  TBLPTRH,a
           movlw  0B6h
           bra    p__3110
-p__310A:  movlw  42h                       ; H ADDR  entry from: 3100h
-          movwf  TBLPTRH,a                 ; tblptrh 
+p__310A:  movlw  42h                       ; entry from: 3100h
+          movwf  TBLPTRH,a
           movlw  0C4h
 p__3110:  call   p___2E4                   ; entry from: 3108h
           movlw  19h
@@ -957,11 +2002,11 @@ p__3110:  call   p___2E4                   ; entry from: 3108h
           clrf   33h,a
           movlb  0Eh
 
-p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
+p__311C:  btfss  0CAh,5,b                  ; PIR0 entry from: 311Eh,3128h,312Ch
           bra    p__311C
-          bcf    0CAh,5,b                  ; PIR5
+          bcf    0CAh,5,b                  ; PIR0
           movf   4Ah,W,a
-          movwf  TMR0H,a
+          movwf  TMR0L,a
           decfsz 33h,a
           bra    p__311C
           decfsz 32h,a
@@ -969,7 +2014,13 @@ p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
           return 
 
 		ORG 3300h 
-          db   33h,0Eh,0FAh,6Eh,2Bh,50h,4h,0Dh,0F3h,50h,0F9h,26h,80h,0EFh,1Ch,0F0h ;3..n+P...P.&....
+p__3300:  movlw  33h                       ; entry from: 0BCCh
+          movwf  PCLATH,a
+          movf   2Bh,W,a
+          mullw  4
+          movf   PRODL,W,a
+          addwf  PCL,a
+          goto   p__3900
           db   80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h;................
           db   80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h;................
           db   80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h,80h,0EFh,1Ch,0F0h;................
@@ -982,7 +2033,13 @@ p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
           db   43h,0Ch,44h,0Ch,45h,0Ch,46h,0Ch                                     ;C.D.E.F.
 
 		ORG 3400h 
-          db   34h,0Eh,0FAh,6Eh,46h,50h,4h,0Dh,0F3h,50h,0F9h,26h,5Ah,0EFh,14h,0F0h ;4..nFP...P.&Z...
+p__3400:  movlw  34h                       ; entry from: 37B6h
+          movwf  PCLATH,a
+          movf   46h,W,a
+          mullw  4
+          movf   PRODL,W,a
+          addwf  PCL,a
+          goto   p__28B4
           db   5Eh,0EFh,14h,0F0h,62h,0EFh,14h,0F0h,26h,0EFh,15h,0F0h,66h,0EFh,14h,0F0h;^...b...&...f...
           db   6Ah,0EFh,14h,0F0h,6Eh,0EFh,14h,0F0h,72h,0EFh,14h,0F0h,76h,0EFh,14h,0F0h;j...n...r...v...
           db   7Ah,0EFh,14h,0F0h,7Eh,0EFh,14h,0F0h,82h,0EFh,14h,0F0h,86h,0EFh,14h,0F0h;z...~...........
@@ -1034,11 +2091,17 @@ p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
           db   36h,0D0h,32h,0D0h,34h,0D0h,30h,0D0h,32h,0D0h,2Eh,0D0h,1Fh,0D0h,2Ch,0D0h;6.2.4.0.2.....,.
           db   2Bh,0D0h,1Eh,0D0h,1Dh,0D0h,1Ch,0D0h,1Dh,0D0h,1Ah,0D0h,19h,0D0h,1Ah,0D0h;+...............
           db   1Dh,0D0h,18h,0D0h,19h,0D0h,1Ch,0D0h,1Dh,0D0h,16h,0D0h,3h,0Eh,22h,0D0h;..............".
-          db   0h,0Eh,85h,0B2h,3h,0Eh,1Eh,0D0h,4h,0Eh,1Ch,0D0h,10h,0Eh,1Ah,0D0h    ;................
-          db   0Ah,0Eh,22h,0A4h,10h,0Eh,16h,0D0h,19h,0Eh,14h,0D0h,22h,0Eh,12h,0D0h ;.."........."...
-          db   75h,0EFh,25h,0F0h,57h,0EFh,14h,0F0h,3Eh,0EFh,14h,0F0h,58h,0EFh,14h,0F0h;u.%.W...>...X...
-          db   38h,0EFh,14h,0F0h,3Bh,0EFh,14h,0F0h,46h,6h,0h,0EFh,1Ah,0F0h,46h,2Ah ;8...;...F.....F*
-          db   0h,0EFh,1Ah,0F0h,46h,6Eh,0h,0EFh,1Ah,0F0h                           ;....Fn....
+p__3770:  movlw  0                         ; entry from: 2884h
+          btfsc  LATC,1,a
+          movlw  3
+          bra    p__37B4
+          db   4h,0Eh,1Ch,0D0h,10h,0Eh,1Ah,0D0h,0Ah,0Eh,22h,0A4h,10h,0Eh,16h,0D0h  ;..........".....
+          db   19h,0Eh,14h,0D0h,22h,0Eh,12h,0D0h,75h,0EFh,25h,0F0h,57h,0EFh,14h,0F0h;...."...u.%.W...
+          db   3Eh,0EFh,14h,0F0h,58h,0EFh,14h,0F0h,38h,0EFh,14h,0F0h,3Bh,0EFh,14h,0F0h;>...X...8...;...
+          db   46h,6h,0h,0EFh,1Ah,0F0h,46h,2Ah,0h,0EFh,1Ah,0F0h                    ;F.....F*....
+
+p__37B4:  movwf  46h,a                     ; entry from: 3B1Ah,3776h
+          goto   p__3400
 
 		ORG 3800h 
           db   38h,0Eh,0FAh,6Eh,46h,50h,2h,0Dh,0F3h,50h,0F9h,26h,0D0h,0D7h,0CFh,0D7h;8..nFP...P.&....
@@ -1052,7 +2115,13 @@ p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
           db   17h,0Eh,98h,0D7h,20h,0Eh,96h,0D7h,70h,0EFh,25h,0F0h                 ;.... ...p.%.
 
 		ORG 3900h 
-          db   39h,0Eh,0FAh,6Eh,46h,50h,4h,0Dh,0F3h,50h,0F9h,26h,57h,0EFh,14h,0F0h ;9..nFP...P.&W...
+p__3900:  movlw  39h                       ; entry from: 330Ch
+          movwf  PCLATH,a
+          movf   46h,W,a
+          mullw  4
+          movf   PRODL,W,a
+          addwf  PCL,a
+          goto   p__28AE
           db   3Ch,0EFh,3h,0F0h,57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h;<...W...W...W...
           db   57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h;W...W...W...W...
           db   57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h,57h,0EFh,14h,0F0h;W...W...W...W...
@@ -1067,7 +2136,14 @@ p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
           db   38h,0EFh,14h,0F0h,3Bh,0EFh,14h,0F0h,3Eh,0EFh,14h,0F0h               ;8...;...>...
 
 		ORG 3A00h 
-          db   4Bh,0Eh,55h,60h,0FFh,0Ch,3Ah,0Eh,0FAh,6Eh,55h,44h,0F9h,26h,0FFh,0Ch ;K.U`..:..nUD.&..
+p__3A00:  movlw  4Bh                       ; entry from: 0B98h
+          cpfslt 55h,a
+          retlw  0FFh
+          movlw  3Ah
+          movwf  PCLATH,a
+          rlncf  55h,W,a
+          addwf  PCL,a
+          retlw  0FFh
           db   0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch;................
           db   0FFh,0Ch,1h,0Ch,2h,0Ch,3h,0Ch,4h,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch     ;................
           db   0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,5h,0Ch,6h,0Ch,7h,0Ch,8h,0Ch,0FFh,0Ch     ;................
@@ -1081,43 +2157,130 @@ p__311C:  btfss  0CAh,5,b                  ; PIR5 entry from: 311Eh,3128h,312Ch
 
 		ORG 3B00h 
           db   8h,0Eh,23h,16h,24h,6Ah,25h,9Ah,20h,86h,12h,0h,21h,0AAh,58h,0EFh     ;..#.$j%. ...!.X.
-          db   14h,0F0h,39h,0ECh,8h,0F0h,21h,9Ah,2Ch,0Eh,0DAh,0EFh,1Bh,0F0h,10h,0Eh;..9...!.,.......
-          db   49h,6Eh,6Ch,0ECh,0Ah,0F0h,39h,0ECh,8h,0F0h,21h,0BAh,12h,0h,5h,0Eh   ;Inl...9...!.....
-          db   26h,6Eh,0E2h,6Eh,27h,6Ah,0E1h,6Ah,21h,98h,0E6h,50h,0FFh,0Ah,0D8h,0B4h;&n.n'j.j!..P....
-          db   6h,0D0h,15h,0Eh,27h,26h,0D8h,0B0h,26h,2Ah,43h,84h,12h,0h,42h,0Eh    ;....'&..&*C...B.
-          db   0F7h,6Eh,9Ah,0Eh,72h,0ECh,1h,0F0h,21h,88h,12h,0h,21h,9Ah,50h,0D9h   ;.n..r...!...!.P.
-          db   85h,94h,4Eh,0D9h,8Ah,86h,4Ch,0D9h,85h,84h,4Ah,0D9h,85h,96h,8Ah,96h  ;..N...L...J.....
-          db   47h,0D9h,85h,94h,12h,0h                                             ;G.....
-p__3B76:  rcall  p__3E00                   ; entry from: 1C2h
-          bcf    LATD,2,a
-          rcall  p__3E00
-          bcf    LATD,3,a
-          bcf    TRISD,3,a
-          rcall  p__3E00
-          bsf    LATD,2,a
-          rcall  p__3E00
-          bsf    TRISD,3,a
+          db   14h,0F0h                                                            ;..
+p__3B12:  call   p__1072                   ; entry from: 4BD6h
+          bcf    21h,5,a
+          movlw  2Ch
+          goto   p__37B4
+p__3B1E:  movlw  10h                       ; entry from: 480Ch
+          movwf  49h,a
+          call   p__14D8
+          call   p__1072
+          btfsc  21h,5,a
           return 
-          db   1h,6Eh,8h,0Eh,0h,6Eh,37h,0D9h,1h,36h,0D8h,0B0h,3h,0D0h,85h,96h      ;.n...n7..6......
-          db   8Ah,96h,1h,0D0h,8Ah,86h,2Fh,0D9h,85h,84h,2Dh,0D9h,85h,94h,0h,2Eh    ;....../...-.....
-          db   0F2h,0D7h,8Ah,86h,28h,0D9h,85h,84h,26h,0D9h,8Fh,0A6h,3h,0D0h,21h,8Ah;....(...&.....!.
-          db   0DDh,0DFh,12h,0h,20h,0D9h,85h,94h,12h,0h,8Ah,86h,8h,0Eh,0h,6Eh      ;.... ..........n
-          db   1Ah,0D9h,85h,84h,18h,0D9h,0D8h,90h,8Fh,0B6h,0D8h,80h,1h,36h,13h,0D9h;.............6..
-          db   85h,94h,0h,2Eh,0F5h,0D7h,20h,0AAh,2h,0D0h,85h,96h,8Ah,96h,0Bh,0D9h  ;...... .........
-          db   85h,84h,9h,0D9h,85h,94h,8Ah,86h,20h,0AAh,0C0h,0DFh,1h,50h,12h,0h    ;........ ....P..
+          movlw  5
+          movwf  26h,a
+          movwf  FSR1H,a
+          clrf   27h,a
+          clrf   FSR1L,a
+          bcf    21h,4,a
+          movf   POSTINC1,W,a
+          xorlw  0FFh
+          btfsc  STATUS,2,a
+          bra    p__3B4E
+          movlw  15h
+          addwf  27h,a
+          btfsc  STATUS,0,a
+          incf   26h,a
+          bsf    43h,2,a
+          return 
+p__3B4E:  movlw  42h                       ; entry from: 3B40h
+          movwf  TBLPTRH,a
+          movlw  9Ah
+          call   p___2E4
+          bsf    21h,4,a
+          return 
+p__3B5C:  bcf    21h,5,a                   ; entry from: 3E50h
+          rcall  p__3E00
+          bcf    LATC,2,a
+          rcall  p__3E00
+          bsf    TRISC,3,a
+          rcall  p__3E00
+          bsf    LATC,2,a
+          rcall  p__3E00
+          bcf    LATC,3,a
+          bcf    TRISC,3,a
+          rcall  p__3E00
+          bcf    LATC,2,a
+          return 
+
+p__3B76:  rcall  p__3E00                   ; entry from: 3F70h,3E76h,3BBAh,1C2h
+          bcf    LATC,2,a
+          rcall  p__3E00
+          bcf    LATC,3,a
+          bcf    TRISC,3,a
+          rcall  p__3E00
+          bsf    LATC,2,a
+          rcall  p__3E00
+          bsf    TRISC,3,a
+          return 
+
+p__3B8A:  movwf  1,a                       ; entry from: 3E58h,3E60h,3E6Ch
+          movlw  8
+          movwf  0,a
+p__3B90:  rcall  p__3E00                   ; entry from: 3BAAh
+          rlcf   1,a
+          btfsc  STATUS,0,a
+          bra    p__3B9E
+          bcf    LATC,3,a
+          bcf    TRISC,3,a
+          bra    p__3BA0
+p__3B9E:  bsf    TRISC,3,a                 ; entry from: 3B96h
+p__3BA0:  rcall  p__3E00                   ; entry from: 3B9Ch
+          bsf    LATC,2,a
+          rcall  p__3E00
+          bcf    LATC,2,a
+          decfsz 0,a
+          bra    p__3B90
+          bsf    TRISC,3,a
+          rcall  p__3E00
+          bsf    LATC,2,a
+          rcall  p__3E00
+          btfss  PORTC,3,a
+          bra    p__3BBE
+          bsf    21h,5,a
+          rcall  p__3B76
+          return 
+p__3BBE:  rcall  p__3E00                   ; entry from: 3BB6h
+          bcf    LATC,2,a
+          return 
+          db   8Ah,86h,8h,0Eh,0h,6Eh,1Ah,0D9h,85h,84h,18h,0D9h,0D8h,90h,8Fh,0B6h   ;.....n..........
+          db   0D8h,80h,1h,36h,13h,0D9h,85h,94h,0h,2Eh,0F5h,0D7h,20h,0AAh,2h,0D0h  ;...6........ ...
+          db   85h,96h,8Ah,96h,0Bh,0D9h,85h,84h,9h,0D9h,85h,94h,8Ah,86h,20h,0AAh   ;.............. .
+          db   0C0h,0DFh,1h,50h,12h,0h                                             ;...P..
 
 
 		ORG 3E00h 
-p__3E00:  goto   p__3E04                   ; entry from: 3B76h,3B7Ah,3B80h,3B84h
+p__3E00:  goto   p__3E04                   ; entry from: 3B76h,3B7Ah,3B80h,3B84h,3B90h,3BA0h,3BA4h,3BAEh,3BB2h,3BBEh,3B5Eh,3B62h,3B66h,3B6Ah,3B70h
 p__3E04:  goto   p__3E08                   ; entry from: 3E00h
 p__3E08:  return                           ; entry from: 3E04h
           db   12h,0h,12h,0h,6h,0Eh,5h,6Eh,0A4h,0DEh,0D8h,90h,38h,34h,0A0h,9h      ;.......n....84..
           db   6h,6Eh,0B6h,0DEh,21h,0BAh,0A7h,0D0h,39h,50h,0B2h,0DEh,21h,0BAh,0A3h,0D0h;.n..!...9P..!...
           db   98h,0DEh,6h,50h,1h,9h,0ACh,0DEh,21h,0BAh,9Dh,0D0h,5h,50h,6h,6Eh     ;...P....!....P.n
           db   20h,8Ah,0C3h,0DEh,0EEh,6Eh,6h,2Eh,0FCh,0D7h,20h,9Ah,0BEh,0DEh,0EEh,6Eh; ....n.... ....n
-          db   12h,0h,7h,0Eh,6h,6Eh,85h,0DEh,0D8h,90h,38h,34h,0A0h,9h,98h,0DEh     ;.....n....84....
-          db   21h,0BAh,89h,0D0h,39h,50h,94h,0DEh,21h,0BAh,85h,0D0h,0h,0Eh,22h,0A8h;!...9P..!.....".
-          db   0EEh,50h,8Eh,0DEh,21h,0BAh,7Fh,0D0h,6h,2Eh,0F8h,0D7h,7Fh,0DEh,12h,0h;.P..!...........
+          db   12h,0h,7h,0Eh                                                       ;....
+p__3E4E:  movwf  6,a                       ; entry from: 3F2Ah
+          rcall  p__3B5C
+          bcf    STATUS,0,a
+          rlcf   38h,W,a
+          iorlw  0A0h
+          rcall  p__3B8A
+          btfsc  21h,5,a
+          bra    p__3F70
+          movf   39h,W,a
+          rcall  p__3B8A
+          btfsc  21h,5,a
+          bra    p__3F70
+p__3E66:  movlw  0                         ; entry from: 3E74h
+          btfss  22h,4,a
+          movf   POSTINC0,W,a
+          rcall  p__3B8A
+          btfsc  21h,5,a
+          bra    p__3F70
+          decfsz 6,a
+          bra    p__3E66
+          rcall  p__3B76
+          return 
           db   7h,0Dh,0F4h,50h,38h,6Eh,2h,0Fh,0EAh,6Eh,0F3h,50h,39h,6Eh,0E9h,6Eh   ;...P8n...n.P9n.n
           db   12h,0h,7h,0Dh,0F4h,50h,38h,6Eh,0F3h,50h,39h,6Eh,12h,0h,22h,8Ch      ;.....P8n.P9n..".
           db   8Fh,0BAh,12h,0h,22h,84h,0Fh,1h,20h,9Bh,8Fh,0A0h,12h,0h,2Ah,0AEh     ;...."... .....*.
@@ -1125,20 +2288,80 @@ p__3E08:  return                           ; entry from: 3E04h
           db   8h,0D0h,0Ah,0D8h,18h,0D8h,4h,0Eh,7Eh,6Eh,0A5h,0Eh,4Fh,0ECh,9h,0F0h  ;........~n..O...
           db   12h,0h,97h,0ECh,1Fh,0F0h,12h,0h,14h,6Ah,4h,0Eh,5h,6Eh,14h,50h       ;.........j...n.P
           db   3Dh,0ECh,1Fh,0F0h,22h,98h,70h,0Eh,27h,0ECh,1Fh,0F0h,10h,0Eh,14h,26h ;=...".p.'......&
-          db   5h,2Eh,0F5h,0D7h,12h,0h,2Ah,0AEh,12h,0h,20h,0Eh,0E9h,6Eh,0A0h,0Eh   ;......*... ..n..
-          db   9h,0ECh,13h,0F0h,25h,50h,4h,0Bh,0E7h,6Eh,0Bh,0B0h,0E7h,80h,0Ah,0BCh ;....%P...n......
-          db   0E7h,82h,70h,0Eh,0E9h,6Eh,0A8h,0Eh,9h,0ECh,13h,0F0h,1h,0Eh,38h,6Eh  ;..p..n........8n
-          db   0F0h,0Eh,39h,6Eh,1h,0Eh,0EAh,6Eh,0A0h,0Eh,0E9h,6Eh,22h,98h,10h,0Eh  ;..9n...n...n"...
-          db   91h,0DFh,12h,0h,2Ah,0AEh,12h,0h,1h,0Eh,38h,6Eh,0F0h,0Eh,39h,6Eh     ;....*.....8n..9n
-          db   1h,0Eh,0EAh,6Eh,0A0h,0Eh,0E9h,6Eh,0Fh,0Eh,65h,0DFh,0A0h,0Eh,0E9h,6Eh;...n...n..e....n
-          db   10h,0Eh,9h,0ECh,13h,0F0h,25h,94h,0EFh,50h,4h,0Bh,25h,12h,0Bh,90h    ;......%..P..%...
-          db   0EFh,0B0h,0Bh,80h,0Ah,9Ch,0EFh,0B2h,0Ah,8Ch,0A8h,0Eh,0E9h,6Eh,70h,0Eh;.............np.
-          db   9h,0ECh,13h,0F0h,12h,0h,2h,0DEh,2Bh,50h,0FFh,0Ah,0D8h,0B4h,4h,0D0h  ;........+P......
-          db   9Bh,0ECh,1h,0F0h,4Eh,0AEh,0FCh,0D7h,43h,0Eh,0F7h,6Eh,6Ch,0Eh,72h,0ECh;....N...C..nl.r.
-          db   1h,0F0h,9Bh,0ECh,1h,0F0h,4Eh,0BEh,0FCh,0D7h,9Bh,0ECh,1h,0F0h,4Eh,0BEh;......N.......N.
-          db   0FCh,0D7h,2Ah,9Eh,0h,0Eh,7Eh,6Eh,2Ah,50h,4Fh,0ECh,9h,0F0h,21h,98h   ;..*...~n*PO...!.
-          db   2Bh,50h,0FFh,0Ah,0D8h,0B4h,4h,0D0h,9Bh,0ECh,1h,0F0h,4Eh,0BEh,0FCh,0D7h;+P..........N...
-          db   21h,0B8h,5h,0D0h,4h,0Eh,7Eh,6Eh,0FFh,0Eh,4Fh,0ECh,9h,0F0h,0FFh,0h   ;!.....~n..O.....
+          db   5h,2Eh,0F5h,0D7h,12h,0h                                             ;......
+p__3EF0:  btfss  2Ah,7,a                   ; entry from: 0D52h
+          return 
+          movlw  20h
+          movwf  FSR0L,a
+          movlw  0A0h
+          call   p__2612
+          movf   25h,W,a
+          andlw  4
+          movwf  INDF1,a
+          btfsc  0Bh,0,a
+          bsf    INDF1,0,a
+          btfsc  0Ah,6,a
+          bsf    INDF1,1,a
+          movlw  70h
+          movwf  FSR0L,a
+          movlw  0A8h
+          call   p__2612
+          movlw  1
+          movwf  38h,a
+          movlw  0F0h
+          movwf  39h,a
+          movlw  1
+          movwf  FSR0H,a
+          movlw  0A0h
+          movwf  FSR0L,a
+          bcf    22h,4,a
+          movlw  10h
+          rcall  p__3E4E
+          return 
+          db   2Ah,0AEh,12h,0h,1h,0Eh,38h,6Eh,0F0h,0Eh,39h,6Eh,1h,0Eh,0EAh,6Eh     ;*.....8n..9n...n
+          db   0A0h,0Eh,0E9h,6Eh,0Fh,0Eh,65h,0DFh,0A0h,0Eh,0E9h,6Eh,10h,0Eh,9h,0ECh;...n..e....n....
+          db   13h,0F0h,25h,94h,0EFh,50h,4h,0Bh,25h,12h,0Bh,90h,0EFh,0B0h,0Bh,80h  ;..%..P..%.......
+          db   0Ah,9Ch,0EFh,0B2h,0Ah,8Ch,0A8h,0Eh,0E9h,6Eh,70h,0Eh,9h,0ECh,13h,0F0h;.........np.....
+          db   12h,0h                                                              ;..
+
+p__3F70:  rcall  p__3B76                   ; entry from: 3E5Ch,3E64h,3E70h
+          movf   2Bh,W,a
+          xorlw  0FFh
+          btfsc  STATUS,2,a
+          bra    p__3F82
+p__3F7A:  call   p___336                   ; entry from: 3F80h
+          btfss  4Eh,7,a
+          bra    p__3F7A
+p__3F82:  movlw  43h                       ; entry from: 3F78h
+          movwf  TBLPTRH,a
+          movlw  6Ch
+          call   p___2E4
+p__3F8C:  call   p___336                   ; entry from: 3F92h
+          btfsc  4Eh,7,a
+          bra    p__3F8C
+p__3F94:  call   p___336                   ; entry from: 3F9Ah
+          btfsc  4Eh,7,a
+          bra    p__3F94
+          bcf    2Ah,7,a
+          movlw  0
+          movwf  7Eh,a
+          movf   2Ah,W,a
+          call   p__129E
+          bcf    21h,4,a
+          movf   2Bh,W,a
+          xorlw  0FFh
+          btfsc  STATUS,2,a
+          bra    p__3FBA
+p__3FB2:  call   p___336                   ; entry from: 3FB8h
+          btfsc  4Eh,7,a
+          bra    p__3FB2
+p__3FBA:  btfsc  21h,4,a                   ; entry from: 3FB0h
+          bra    p__3FC8
+p__3FBE:  movlw  4                         ; entry from: 0C24h
+          movwf  7Eh,a
+          movlw  0FFh
+          call   p__129E
+p__3FC8:  reset                            ; entry from: 3FBCh
           db   0h,0EFh,0h,0F0h,43h,0Eh,0F7h,6Eh,0CEh,0Eh,72h,0ECh,1h,0F0h,5h,0Eh   ;....C..n..r.....
           db   0E9h,6Eh,4h,0Eh,13h,6Eh,28h,0ECh,3h,0F0h,0EDh,6Eh,0E1h,2Ah,0h,0Eh   ;.n...n(....n.*..
           db   13h,6Eh,28h,0ECh,3h,0F0h,0EFh,6Eh,12h,0h                            ;.n(....n..
@@ -1194,8 +2417,17 @@ p__3E08:  return                           ; entry from: 3E04h
 		ORG 4500h 
           db   5h,0CFh,91h,83h,4Bh,23h,21h,8Fh,1h,3h,0F9h,35h,0E1h,0C1h,31h,0FFh   ;....K#!....5..1.
           db   9h,39h,25h,49h,0CFh,0C7h,75h,0Dh,5h,19h,23h,45h,61h,0F1h,39h,3h     ;.9%I..u...#Ea.9.
-          db   69h,0EFh,0C5h,0CFh,0E9h,19h,0Bh,23h,71h,0E5h,43h,0FFh,0BDh,0AEh,5h,0D0h;i......#q.C.....
-          db   22h,82h,0h,0h,22h,0B2h,0FDh,0D7h,0BDh,9Eh,0FFh,0Eh,8Bh,6Eh,12h,0h   ;"..."........n..
+          db   69h,0EFh,0C5h,0CFh,0E9h,19h,0Bh,23h,71h,0E5h,43h,0FFh               ;i......#q.C.
+p__452C:  btfss  T2CON,7,a                 ; entry from: 154h
+          bra    p__453A
+          bsf    22h,1,a
+p__4532:  nop                              ; entry from: 4536h
+          btfsc  22h,1,a
+          bra    p__4532
+          bcf    T2CON,7,a
+p__453A:  movlw  0FFh                      ; entry from: 452Eh
+          movwf  TRISD,a
+          return 
           db   55h,0Eh,76h,0ECh,2h,0F0h,43h,0Eh,0E9h,0ECh,0Ah,0F0h,0h,0Eh,48h,0ECh ;U.v...C.......H.
           db   9h,0F0h,0E9h,0ECh,0Ah,0F0h,0h,0Eh,8Dh,0A4h,1h,0Eh,22h,0A4h,4h,0D0h  ;............"...
           db   80h,0Fh,1h,6Eh,58h,0A2h,40h,0Fh,0E9h,0ECh,0Ah,0F0h,0F7h,6Ah,40h,0Eh ;...nX.@......j@.
@@ -1211,32 +2443,86 @@ p__3E08:  return                           ; entry from: 3E04h
           db   0D8h,0A4h,2h,0D0h,1h,0Eh,5h,0D0h,0h,51h,0F1h,0Ah,0D8h,0A4h,2h,0D0h  ;.........Q......
           db   2h,0Eh,2h,6Eh,0Ah,0B6h,0Eh,0D0h,0Bh,0A4h,2h,0D0h,31h,90h,12h,0h     ;...n........1...
           db   31h,0B0h,12h,0h,2h,0A0h,2h,0D0h,0FFh,0Eh,5h,0D0h,2h,0A2h,2h,0D0h    ;1...............
-          db   1Fh,0Eh,1h,0D0h,0h,39h,0F0h,6Fh,31h,80h,12h,0h,4Fh,0Eh,0F7h,6Eh     ;.....9.o1...O..n
-          db   0h,0Eh,0F6h,6Eh,1h,1h,0F0h,51h,8h,0Dh,0F3h,50h,0F6h,26h,0D8h,0B0h   ;...n...Q...P.&..
-          db   0F7h,2Ah,0F4h,50h,0F7h,26h,4h,0Eh,0E2h,6Eh,20h,0Eh,0E1h,6Eh,9h,0h   ;.*.P.&...n ..n..
-          db   0F5h,50h,0E6h,6Eh,0FFh,0Eh,0E6h,6Eh,0E6h,6Eh,7h,0Eh,0h,6Eh,9h,0h    ;.P.n...n.n...n..
-          db   0F5h,50h,0E6h,6Eh,0h,2Eh,0FBh,0D7h,31h,90h,12h,0h,21h,98h,18h,50h   ;.P.n....1...!..P
-          db   17h,0Ah,0D8h,0A4h,12h,0h,19h,50h,96h,0Ah,0D8h,0A4h,12h,0h,31h,84h   ;.......P......1.
-          db   21h,88h,12h,0h,21h,98h,31h,0A4h,12h,0h,31h,0B8h,1Ah,0D0h,4Eh,50h    ;!...!.1...1...NP
-          db   8h,0Ah,0D8h,0A4h,12h,0h,31h,88h,8Ah,0ECh,25h,0F0h,48h,52h,0D8h,0B4h ;......1...%.HR..
-          db   12h,0h,23h,96h,31h,0A6h,0Bh,0D0h,0AAh,0ECh,0h,0F0h,8Fh,0ECh,1Dh,0F0h;..#.1...........
-          db   23h,86h,0BDh,8Eh,21h,0BAh,2Bh,0EFh,0Bh,0F0h,21h,0B8h,2h,0D0h,4Fh,0ECh;#...!.+...!...O.
-          db   14h,0F0h,21h,88h,12h,0h,2h,0Eh,0EAh,6Eh,0E9h,6Ah,38h,6Ah,39h,6Ah    ;..!......n.j8j9j
-          db   0DFh,0Eh,8h,0ECh,1Fh,0F0h,0E0h,0Eh,39h,6Eh,0DFh,0Eh,8h,0ECh,1Fh,0F0h;........9n......
-          db   12h,0h,10h,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0AAh,0Ah,0D8h,0A4h;................
-          db   4h,0D0h,8Eh,0A6h,0F6h,0D7h,0h,0Eh,0F5h,0D7h,0h,50h,55h,0Ah,0D8h,0A4h;...........PU...
-          db   58h,0D0h,0AAh,0ECh,0h,0F0h,87h,90h,94h,0ECh,1h,0F0h,0h,6Ah,1h,6Ah   ;X............j.j
-          db   2h,6Ah,3h,6Ah,21h,98h,3Fh,0Eh,24h,16h,0F8h,0Eh,0D3h,6Eh,0CAh,9Bh    ;.j.j!.?.$....n..
-          db   83h,96h,0Eh,1h,0CAh,0ABh,0FEh,0D7h,0CAh,9Bh,0F8h,0Eh,0D3h,6Eh,24h,0BCh;.............n$.
-          db   7h,0D0h,8Eh,0A2h,4h,0D0h,0h,3Eh,3h,0D0h,1h,2Ah,0D8h,0B4h,24h,8Ch    ;.......>...*..$.
-          db   24h,0BEh,7h,0D0h,8Eh,0A8h,4h,0D0h,2h,3Eh,0ECh,0D7h,3h,3Eh,0EAh,0D7h ;$........>...>..
-          db   24h,8Eh,0h,0h,24h,0ACh,0E6h,0D7h,24h,0AEh,0E4h,0D7h,24h,0Eh,4h,6Eh  ;$...$...$...$..n
-          db   9Fh,0Eh,5h,6Eh,0CAh,0ABh,0FEh,0D7h,0CAh,9Bh,4Ah,50h,0D3h,6Eh,8Eh,0B6h;...n......JP.n..
-          db   5h,0D0h,4h,2Eh,0F7h,0D7h,5h,2Eh,0F5h,0D7h,21h,88h,83h,86h,1h,50h    ;..........!....P
-          db   0E9h,0ECh,0Ah,0F0h,0h,50h,0E9h,0ECh,0Ah,0F0h,3h,50h,0E9h,0ECh,0Ah,0F0h;.....P.....P....
-          db   2h,50h,0E9h,0ECh,0Ah,0F0h,21h,0B8h,6h,0D0h,0h,0Eh,0E9h,0ECh,0Ah,0F0h;.P....!.........
-          db   0BDh,8Eh,80h,0EFh,5h,0F0h,0FFh,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h;................
-          db   0BDh,8Eh,10h,0Eh,0E9h,0ECh,0Ah,0F0h,80h,0EFh,5h,0F0h                ;............
+          db   1Fh,0Eh,1h,0D0h,0h,39h,0F0h,6Fh,31h,80h,12h,0h                      ;.....9.o1...
+p__478C:  movlw  4Fh                       ; entry from: 0EC4h
+          movwf  TBLPTRH,a
+          movlw  0
+          movwf  TBLPTRL,a
+          movlb  1
+          movf   0F0h,W,b
+          mullw  8
+          movf   PRODL,W,a
+          addwf  TBLPTRL,a
+          btfsc  STATUS,0,a
+          incf   TBLPTRH,a
+          movf   PRODH,W,a
+          addwf  TBLPTRH,a
+          movlw  4
+          movwf  FSR1H,a
+          movlw  20h
+          movwf  FSR1L,a
+          tblrd*+
+          movf   TABLAT,W,a
+          movwf  POSTINC1,a
+          movlw  0FFh
+          movwf  POSTINC1,a
+          movwf  POSTINC1,a
+          movlw  7
+          movwf  0,a
+p__47BE:  tblrd*+                          ; entry from: 47C6h
+          movf   TABLAT,W,a
+          movwf  POSTINC1,a
+          decfsz 0,a
+          bra    p__47BE
+          bcf    31h,0,a
+          return 
+          db   21h,98h,18h,50h,17h,0Ah,0D8h,0A4h,12h,0h,19h,50h,96h,0Ah,0D8h,0A4h  ;!..P.......P....
+          db   12h,0h,31h,84h,21h,88h,12h,0h                                       ;..1.!...
+p__47E4:  bcf    21h,4,a                   ; entry from: 0BD2h
+          btfss  31h,2,a
+          return 
+          btfsc  31h,4,a
+          bra    p__4822
+          movf   4Eh,W,a
+          xorlw  8
+          btfss  STATUS,2,a
+          return 
+          bsf    31h,4,a
+          call   p__4B14
+          movf   48h,a
+          btfsc  STATUS,2,a
+          return 
+          bcf    23h,3,a
+          btfss  31h,3,a
+          bra    p__481E
+          call   p___154
+          call   p__3B1E
+          bsf    23h,3,a
+          bsf    T2CON,7,a
+          btfsc  21h,5,a
+          goto   p__1656
+          btfsc  21h,4,a
+          bra    p__4822
+p__481E:  call   p__289E                   ; entry from: 4806h
+
+p__4822:  bsf    21h,4,a                   ; entry from: 47ECh,481Ch
+          return 
+          db   2h,0Eh,0EAh,6Eh,0E9h,6Ah,38h,6Ah,39h,6Ah,0DFh,0Eh,8h,0ECh,1Fh,0F0h  ;...n.j8j9j......
+          db   0E0h,0Eh,39h,6Eh,0DFh,0Eh,8h,0ECh,1Fh,0F0h,12h,0h,10h,0Eh,0E9h,0ECh ;..9n............
+          db   0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0AAh,0Ah,0D8h,0A4h,4h,0D0h,8Eh,0A6h,0F6h,0D7h;................
+          db   0h,0Eh,0F5h,0D7h,0h,50h,55h,0Ah,0D8h,0A4h,58h,0D0h,0AAh,0ECh,0h,0F0h;.....PU...X.....
+          db   87h,90h,94h,0ECh,1h,0F0h,0h,6Ah,1h,6Ah,2h,6Ah,3h,6Ah,21h,98h        ;.......j.j.j.j!.
+          db   3Fh,0Eh,24h,16h,0F8h,0Eh,0D3h,6Eh,0CAh,9Bh,83h,96h,0Eh,1h,0CAh,0ABh ;?.$....n........
+          db   0FEh,0D7h,0CAh,9Bh,0F8h,0Eh,0D3h,6Eh,24h,0BCh,7h,0D0h,8Eh,0A2h,4h,0D0h;.......n$.......
+          db   0h,3Eh,3h,0D0h,1h,2Ah,0D8h,0B4h,24h,8Ch,24h,0BEh,7h,0D0h,8Eh,0A8h   ;.>...*..$.$.....
+          db   4h,0D0h,2h,3Eh,0ECh,0D7h,3h,3Eh,0EAh,0D7h,24h,8Eh,0h,0h,24h,0ACh    ;...>...>..$...$.
+          db   0E6h,0D7h,24h,0AEh,0E4h,0D7h,24h,0Eh,4h,6Eh,9Fh,0Eh,5h,6Eh,0CAh,0ABh;..$...$..n...n..
+          db   0FEh,0D7h,0CAh,9Bh,4Ah,50h,0D3h,6Eh,8Eh,0B6h,5h,0D0h,4h,2Eh,0F7h,0D7h;....JP.n........
+          db   5h,2Eh,0F5h,0D7h,21h,88h,83h,86h,1h,50h,0E9h,0ECh,0Ah,0F0h,0h,50h   ;....!....P.....P
+          db   0E9h,0ECh,0Ah,0F0h,3h,50h,0E9h,0ECh,0Ah,0F0h,2h,50h,0E9h,0ECh,0Ah,0F0h;.....P.....P....
+          db   21h,0B8h,6h,0D0h,0h,0Eh,0E9h,0ECh,0Ah,0F0h,0BDh,8Eh,80h,0EFh,5h,0F0h;!...............
+          db   0FFh,0Eh,0E9h,0ECh,0Ah,0F0h,0E3h,0ECh,0Ah,0F0h,0BDh,8Eh,10h,0Eh,0E9h,0ECh;................
+          db   0Ah,0F0h,80h,0EFh,5h,0F0h                                           ;......
 
 		ORG 4A00h 
           db   2Bh,50h,16h,0Ah,0D8h,0A4h,6h,0D0h,57h,0B6h,79h,0D0h,7Eh,0D8h,0A7h,0D8h;+P......W.y.~...
@@ -1255,37 +2541,135 @@ p__3E08:  return                           ; entry from: 3E04h
           db   57h,0A6h,3h,0D0h,38h,0D8h,57h,0EFh,14h,0F0h,41h,0D8h,57h,0EFh,14h,0F0h;W...8.W...A.W...
           db   57h,88h,18h,0D8h,3Ch,0D8h,57h,0EFh,14h,0F0h,57h,88h,1Bh,0D8h,37h,0D8h;W...<.W...W...7.
           db   57h,0EFh,14h,0F0h,0Ah,0D8h,57h,88h,32h,0D8h,57h,0EFh,14h,0F0h,5h,0D8h;W.....W.2.W.....
-          db   57h,86h,21h,0D8h,57h,80h,57h,0EFh,14h,0F0h,47h,6Ah,48h,6Ah,57h,6Ah  ;W.!.W.W...GjHjWj
-          db   1Ah,0D8h,12h,0h,1h,0Eh,48h,24h,7h,0h,48h,6Eh,54h,0Eh,48h,60h        ;......H$..HnT.H`
-          db   48h,6Ah,12h,0h,48h,52h,0D8h,0A4h,3h,0D0h,53h,0Eh,48h,6Eh,12h,0h     ;Hj..HR....S.Hn..
-          db   48h,6h,0Fh,0Eh,48h,14h,0Fh,0Ah,0D8h,0A4h,12h,0h,48h,50h,0F0h,0Bh    ;H...H.......HP..
-          db   9h,9h,48h,6Eh,12h,0h,42h,0Eh,0F7h,6Eh,70h,0Eh,72h,0ECh,1h,0F0h      ;..Hn..B..np.r...
-          db   14h,0EEh,0h,0F0h,47h,50h,0E3h,0ECh,3h,0F0h,0E7h,6Eh,12h,0h,0AAh,0ECh;....GP.....n....
-          db   0h,0F0h,57h,0A8h,4h,0D0h,17h,0Eh,57h,6Eh,43h,88h,2h,0D0h,57h,0BAh   ;..W.....WnC...W.
-          db   4h,0D0h,42h,0Eh,0F7h,6Eh,54h,0Eh,4h,0D0h,42h,0Eh,0F7h,6Eh,62h,0Eh   ;..B..nT...B..nb.
-          db   57h,9Ah,72h,0ECh,1h,0F0h,4h,0Eh,0E2h,6Eh,3h,0Eh,0E1h,6Eh,57h,0A0h   ;W.r......n...nW.
-          db   15h,0D0h,47h,50h,0E3h,0ECh,3h,0F0h,0E5h,6Eh,0E1h,6h,57h,0A2h,0Eh,0D0h;..GP.....n..W...
-          db   48h,38h,0Fh,0Bh,0E3h,0ECh,3h,0F0h,0E5h,6Eh,57h,0A4h,7h,0D0h,48h,50h ;H8.......nW...HP
-          db   0Fh,0Bh,0E3h,0ECh,3h,0F0h,0E7h,6Eh,0BDh,8Eh,12h,0h,0F7h,0Eh,0E7h,6Eh;.......n.......n
-          db   0BDh,8Eh,12h,0h,9h,0ECh,8h,0F0h,0Dh,0Eh,0E1h,6Eh,65h,0ECh,0Bh,0F0h  ;...........ne...
-          db   0h,0ECh,9h,0F0h,21h,0BAh,89h,0EFh,1Dh,0F0h,64h,0ECh,8h,0F0h,0FFh,0Ah;....!.....d.....
-          db   0D8h,0A4h,0Ah,0D0h,20h,9Ah,64h,0ECh,8h,0F0h,42h,0Eh,0F7h,6Eh,8Ch,0Eh;.... .d...B..n..
-          db   72h,0ECh,1h,0F0h,0BDh,8Eh,12h,0h,5h,0EEh,0h,0F0h,18h,0Eh,5h,6Eh     ;r..............n
-          db   64h,0ECh,8h,0F0h,0EEh,6Eh,5h,2Eh,0FBh,0D7h,20h,9Ah,64h,0ECh,8h,0F0h ;d....n.... .d...
-          db   0E9h,6Ah,0Bh,0Eh,5h,6Eh,0EEh,50h,0h,6Eh,2Ah,0D8h,0E5h,6Eh,5h,2Eh    ;.j...n.P.n*..n..
-          db   0FAh,0D7h,16h,0Eh,0E9h,6Eh,0EEh,50h,3h,0Bh,2h,6Eh,0EEh,38h,7h,0Bh   ;.....n.P...n.8..
-          db   1h,6Eh,2h,0Eh,0E1h,6Eh,64h,0D8h,0E5h,6Eh,6Dh,0D8h,0E5h,6Eh,2h,50h   ;.n...nd..nm..n.P
-          db   91h,0Eh,0D8h,0A4h,0CFh,0Eh,0E7h,6Eh,0BDh,8Eh,12h,0h,21h,88h,57h,0B0h;.......n....!.W.
-          db   21h,98h,12h,0h,57h,0B8h,0Ah,0D0h,21h,88h,57h,0A6h,3h,0D0h,57h,0B0h  ;!...W...!.W...W.
-          db   21h,98h,12h,0h,57h,50h,7h,16h,7h,0Ah,0D8h,0B4h,21h,98h,12h,0h       ;!...WP......!...
-          db   3h,6Eh,0FFh,0Ah,0D8h,0B4h,0FFh,0Ch,41h,0Eh,0F7h,6Eh,0h,0Eh,0F6h,6Eh ;.n......A..n...n
-          db   9h,0h,0F5h,50h,0FFh,0Ah,0D8h,0B4h,0F7h,0Ch,0F5h,50h,3h,18h,0D8h,0A4h;...P.......P....
-          db   0F7h,0D7h,45h,0Eh,0F7h,6Eh,0Ah,0h,8h,0h,0F5h,50h,12h,0h             ;..E..n.....P..
+          db   57h,86h,21h,0D8h,57h,80h,57h,0EFh,14h,0F0h                          ;W.!.W.W...
+p__4B0A:  clrf   47h,a                     ; entry from: 287Eh
+          clrf   48h,a
+          clrf   57h,a
+          rcall  p__4B46
+          return 
+p__4B14:  movlw  1                         ; entry from: 47F8h
+          addwf  48h,W,a
+          daw
+          movwf  48h,a
+          movlw  54h
+          cpfslt 48h,a
+          clrf   48h,a
+          return 
+          db   48h,52h,0D8h,0A4h,3h,0D0h,53h,0Eh,48h,6Eh,12h,0h,48h,6h,0Fh,0Eh     ;HR....S.Hn..H...
+          db   48h,14h,0Fh,0Ah,0D8h,0A4h,12h,0h,48h,50h,0F0h,0Bh,9h,9h,48h,6Eh     ;H.......HP....Hn
+          db   12h,0h                                                              ;..
+p__4B46:  movlw  42h                       ; entry from: 4B10h
+          movwf  TBLPTRH,a
+          movlw  70h
+          call   p___2E4
+          lfsr   1,400h
+          movf   47h,W,a
+          call   p___7C6
+          movwf  INDF1,a
+          return 
+          db   0AAh,0ECh,0h,0F0h,57h,0A8h,4h,0D0h,17h,0Eh,57h,6Eh,43h,88h,2h,0D0h  ;....W.....WnC...
+          db   57h,0BAh,4h,0D0h,42h,0Eh,0F7h,6Eh,54h,0Eh,4h,0D0h,42h,0Eh,0F7h,6Eh  ;W...B..nT...B..n
+          db   62h,0Eh,57h,9Ah,72h,0ECh,1h,0F0h,4h,0Eh,0E2h,6Eh,3h,0Eh,0E1h,6Eh    ;b.W.r......n...n
+          db   57h,0A0h,15h,0D0h,47h,50h,0E3h,0ECh,3h,0F0h,0E5h,6Eh,0E1h,6h,57h,0A2h;W...GP.....n..W.
+          db   0Eh,0D0h,48h,38h,0Fh,0Bh,0E3h,0ECh,3h,0F0h,0E5h,6Eh,57h,0A4h,7h,0D0h;..H8.......nW...
+          db   48h,50h,0Fh,0Bh,0E3h,0ECh,3h,0F0h,0E7h,6Eh,0BDh,8Eh,12h,0h,0F7h,0Eh ;HP.......n......
+          db   0E7h,6Eh,0BDh,8Eh,12h,0h                                            ;.n....
+p__4BC4:  call   p__1012                   ; entry from: 288Eh
+          movlw  0Dh
+          movwf  FSR1L,a
+          call   p__16CA
+          call   p__1200
+          btfsc  21h,5,a
+          goto   p__3B12
+          call   p__10C8
+          xorlw  0FFh
+          btfss  STATUS,2,a
+          bra    p__4BF8
+          bcf    20h,5,a
+          call   p__10C8
+          movlw  42h
+          movwf  TBLPTRH,a
+          movlw  8Ch
+          call   p___2E4
+          bsf    T2CON,7,a
+          return 
+p__4BF8:  lfsr   0,500h                    ; entry from: 4BE2h
+          movlw  18h
+          movwf  5,a
+p__4C00:  call   p__10C8                   ; entry from: 4C08h
+          movwf  POSTINC0,a
+          decfsz 5,a
+          bra    p__4C00
+          bcf    20h,5,a
+          call   p__10C8
+          clrf   FSR0L,a
+          movlw  0Bh
+          movwf  5,a
+p__4C16:  movf   POSTINC0,W,a              ; entry from: 4C20h
+          movwf  0,a
+          rcall  p__4C70
+          movwf  POSTDEC1,a
+          decfsz 5,a
+          bra    p__4C16
+          movlw  16h
+          movwf  FSR0L,a
+          movf   POSTINC0,W,a
+          andlw  3
+          movwf  2,a
+          swapf  POSTINC0,W,a
+          andlw  7
+          movwf  1,a
+          movlw  2
+          movwf  FSR1L,a
+          rcall  p__4D00
+          movwf  POSTDEC1,a
+          rcall  p__4D16
+          movwf  POSTDEC1,a
+          movf   2,W,a
+          movlw  91h
+          btfss  STATUS,2,a
+          movlw  0CFh
+          movwf  INDF1,a
+          bsf    T2CON,7,a
+          return 
+          db   21h,88h,57h,0B0h,21h,98h,12h,0h,57h,0B8h,0Ah,0D0h,21h,88h,57h,0A6h  ;!.W.!...W...!.W.
+          db   3h,0D0h,57h,0B0h,21h,98h,12h,0h,57h,50h,7h,16h,7h,0Ah,0D8h,0B4h     ;..W.!...WP......
+          db   21h,98h,12h,0h                                                      ;!...
+p__4C70:  movwf  3,a                       ; entry from: 4C1Ah
+          xorlw  0FFh
+          btfsc  STATUS,2,a
+          retlw  0FFh
+          movlw  41h
+          movwf  TBLPTRH,a
+          movlw  0
+          movwf  TBLPTRL,a
+p__4C80:  tblrd*+                          ; entry from: 4C90h
+          movf   TABLAT,W,a
+          xorlw  0FFh
+          btfsc  STATUS,2,a
+          retlw  0F7h
+          movf   TABLAT,W,a
+          xorwf  3,W,a
+          btfss  STATUS,2,a
+          bra    p__4C80
+          movlw  45h
+          movwf  TBLPTRH,a
+          tblrd*-
+          tblrd*
+          movf   TABLAT,W,a
+          return 
 
 		ORG 4D00h 
-          db   0F9h,50h,1h,44h,0F9h,26h,0FFh,0Ch,0FBh,0Ch,0FBh,0Ch,0FFh,0Ch,0FFh,0Ch;.P.D.&..........
-          db   0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0F9h,50h,1h,44h,0F9h,26h,0CFh,0Ch,0CFh,0Ch;.......P.D.&....
-          db   91h,0Ch,0CFh,0Ch,91h,0Ch,0CFh,0Ch,0CFh,0Ch,0CFh,0Ch                 ;............
+p__4D00:  movf   PCL,W,a                   ; entry from: 4C36h
+          rlncf  1,W,a
+          addwf  PCL,a
+          retlw  0FFh
+          db   0FBh,0Ch,0FBh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch,0FFh,0Ch      ;..............
+p__4D16:  movf   PCL,W,a                   ; entry from: 4C3Ah
+          rlncf  1,W,a
+          addwf  PCL,a
+          retlw  0CFh
+          db   0CFh,0Ch,91h,0Ch,0CFh,0Ch,91h,0Ch,0CFh,0Ch,0CFh,0Ch,0CFh,0Ch        ;..............
 
 		ORG 4F00h 
           db   0FFh,23h,0F9h,0FFh,0FFh,0FFh,0FFh,0FFh,49h,19h,0CFh,35h,31h,0F9h,0FFh,0FFh;.#......I..51...

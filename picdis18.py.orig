@@ -152,21 +152,14 @@ def read_object_code(objectfile):
                 if (ad in conf_regs):
                     configuration[ad] = int(dd[0:2], 16)
 
-                if ((ad & 1) == 0 or nb <= 1):
-                    #print("ad=", hex(ad), " dd=", dd)
-                    if (nb > 1):
-                        d = int(dd[0:2], 16), int(dd[2:4], 16) # convert 2 bytes
-                        teco[ad & ~1] = Instruction()          # add a new key = address
-                        teco[ad & ~1].bin = (d[1] << 8) + d[0] # write a word in code
-                    else:
-                        d = int(dd[0:2], 16)                   # convert last byte
-                        teco[ad] = Instruction()               # add a new key = address
-                        teco[ad].bin = d                       # write a byte in code
+                if ((ad & 1) == 0):
+                    d = int(dd[0:2], 16), int(dd[2:4], 16)    # convert 2 bytes
+                    teco[ad & ~1] = Instruction()             # add a new key = address
+                    teco[ad & ~1].bin = (d[1] << 8) + d[0]    # write a word in code
 
                 cks += int(dd[0:2], 16)                       # update checksum
                 ad += 1                                       # bump the code address
                 dd = dd[2:]                                   # drop one byte
-                nb -= 1
 
             if ((int(x[-2:], 16) + cks) & 0xFF != 0):         # verify the checksum
                 raise ValueError((hexc(-cks), hexc(int(x[-2:], 16))))
