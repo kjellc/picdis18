@@ -249,7 +249,7 @@ def make_operand_table():
         if (x == ""):
             continue
         # split into (asm, skip, stop, binary template)
-        asm, skip, stop, template = (re.split(' \s+', x))
+        asm, skip, stop, template = (re.split(r' \s+', x))
         cv = cm = 0                    # init code_value, code_mask
         for ch in template:            # for each character in the bit template
             if (ch == '0'):
